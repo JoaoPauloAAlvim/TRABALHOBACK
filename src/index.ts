@@ -93,6 +93,47 @@ app.post("/produtos", async (req: Request, res: Response) => {
   }
 });
 
+app.put("/produtos/:idProduto", async (req: Request, res: Response) => {
+  const idProduto = Number(req.params.idProduto);
+  const { nome, preco, quantidadeEmEstoque, idCat, idFornecedor } = req.body;
+  
+  try {
+    if (isNaN(idProduto)) {
+      res.status(400);
+      throw new Error("Digite um número por favor");
+    }
+    if (!nome || !preco || !quantidadeEmEstoque || !idCat || !idFornecedor) {
+      res.status(400);
+      throw new Error("Campos faltando");
+    }
+    const categoria = await connection("categoria").where("idCat", idCat);
+    if (categoria.length === 0) {
+      res.status(404);
+      throw new Error("Categoria não encontrada");
+    }
+    const fornecedor = await connection("fornecedor").where("idFornecedor",idFornecedor);
+    if (fornecedor.length===0) {
+      res.status(404);
+      throw new Error("Fornecedor não encontrado");
+    }
+    const produtoAtualizado = await connection('produto')
+      .where("idProduto", idProduto)
+      .update({
+        nome: nome,
+        preco: preco,
+        quantidadeEmEstoque: quantidadeEmEstoque,
+        idCat: idCat,
+        idFornecedor: idFornecedor
+      });
+    if (produtoAtualizado === 0) {
+      res.status(404);
+      throw new Error("Produto não encontrado.");
+    }
+    res.status(200).send("Produto atualizado com sucesso");
+  } catch (error: any) {
+    res.send(error.message || error.sql.message);;
+  }
+});
 
 
 const PORT = process.env.PORT || 3003;
