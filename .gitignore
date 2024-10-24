@@ -1,0 +1,29 @@
+# Pasta de dependências do Node.js
+node_modules/
+
+# Pasta de build (arquivos gerados)
+build/
+
+# Arquivo de variáveis de ambiente (não versione credenciais)
+.env
+
+# Logs de erros ou execução
+*.log
+
+# Diretórios temporários de cache
+.cache/
+
+# Arquivos de configuração do editor
+.vscode/
+.idea/
+
+# Arquivos de lock
+package-lock.json
+yarn.lock
+
+# Arquivos do sistema operacional
+.DS_Store
+Thumbs.db
+
+# Configurações do TypeScript que podem ser regeneradas
+*.tsbuildinfo
