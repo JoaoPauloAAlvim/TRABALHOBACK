@@ -30,7 +30,6 @@ app.get("/produtos/:idProduto", async (req: Request, res: Response) => {
       throw new Error("Digite um número por favor");
     }
     const produtoProcurado = await connection("produto")
-      .select("nome")
       .where("idproduto", idProduto);
     if (produtoProcurado.length === 0) {
       res.status(404);
@@ -62,31 +61,38 @@ app.delete("/produtos/:idProduto", async (req: Request, res: Response) => {
     res.send(error.message || error.sql.message);
   }
 });
+
 app.post("/produtos", async (req: Request, res: Response) => {
   const { nome, preco, quantidadeEmEstoque, idCat, idFornecedor } = req.body;
+  Number(preco),Number(quantidadeEmEstoque),Number(idCat),Number(idFornecedor);
 
   try {
+    if(isNaN(preco) || isNaN(quantidadeEmEstoque)||isNaN(idCat)||isNaN(idFornecedor)){
+      res.status(400);
+      throw new Error("Campo(s) com tipo inválido")
+    }
     if (!nome || !preco || !quantidadeEmEstoque || !idCat || !idFornecedor) {
       res.status(400);
       throw new Error("Campos faltando");
     }
-    const categoria = await connection("categoria").where("idCat", idCat);
+    const categoria = await connection("categoria")
+      .where("idCat", idCat);
     if (categoria.length === 0) {
       res.status(404);
       throw new Error("Categoria não encontrada");
     }
-    const fornecedor = await connection("fornecedor").where("idFornecedor",idFornecedor);
+    const fornecedor = await connection("fornecedor")
+      .where("idFornecedor",idFornecedor);
     if (fornecedor.length===0) {
       res.status(404);
       throw new Error("Fornecedor não encontrado");
     }
-    const novoProduto = await connection("produto")
+    await connection("produto")
       .insert({
         nome,
         preco,
         quantidadeEmEstoque,
-        idCat,
-        idFornecedor
+        idCat
       });
   } catch (error: any) {
     res.send(error.message || error.sql.message);
@@ -96,22 +102,25 @@ app.post("/produtos", async (req: Request, res: Response) => {
 app.put("/produtos/:idProduto", async (req: Request, res: Response) => {
   const idProduto = Number(req.params.idProduto);
   const { nome, preco, quantidadeEmEstoque, idCat, idFornecedor } = req.body;
+  Number(preco),Number(quantidadeEmEstoque),Number(idCat),Number(idFornecedor);
   
   try {
-    if (isNaN(idProduto)) {
+    if(isNaN(preco) || isNaN(quantidadeEmEstoque) ||isNaN(idProduto)||isNaN(idCat)||isNaN(idFornecedor)){
       res.status(400);
-      throw new Error("Digite um número por favor");
+      throw new Error("Campo(s) com tipo inválido")
     }
     if (!nome || !preco || !quantidadeEmEstoque || !idCat || !idFornecedor) {
       res.status(400);
       throw new Error("Campos faltando");
     }
-    const categoria = await connection("categoria").where("idCat", idCat);
+    const categoria = await connection("categoria")
+      .where("idCat", idCat);
     if (categoria.length === 0) {
       res.status(404);
       throw new Error("Categoria não encontrada");
     }
-    const fornecedor = await connection("fornecedor").where("idFornecedor",idFornecedor);
+    const fornecedor = await connection("fornecedor")
+      .where("idFornecedor",idFornecedor);
     if (fornecedor.length===0) {
       res.status(404);
       throw new Error("Fornecedor não encontrado");
@@ -119,11 +128,10 @@ app.put("/produtos/:idProduto", async (req: Request, res: Response) => {
     const produtoAtualizado = await connection('produto')
       .where("idProduto", idProduto)
       .update({
-        nome: nome,
-        preco: preco,
-        quantidadeEmEstoque: quantidadeEmEstoque,
-        idCat: idCat,
-        idFornecedor: idFornecedor
+        nome,
+        preco,
+        quantidadeEmEstoque,
+        idCat
       });
     if (produtoAtualizado === 0) {
       res.status(404);
@@ -132,11 +140,10 @@ app.put("/produtos/:idProduto", async (req: Request, res: Response) => {
     res.status(200).send("Produto atualizado com sucesso");
   } catch (error: any) {
     res.send(error.message || error.sql.message);;
-  }
+   }
 });
 
-
-const PORT = process.env.PORT || 3003;
+const PORT = process.env.PORT;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
