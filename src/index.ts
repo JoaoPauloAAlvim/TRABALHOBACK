@@ -62,6 +62,36 @@ app.delete("/produtos/:idProduto", async (req: Request, res: Response) => {
     res.send(error.message || error.sql.message);
   }
 });
+app.post("/produtos", async (req: Request, res: Response) => {
+  const { nome, preco, quantidadeEmEstoque, idCat, idFornecedor } = req.body;
+
+  try {
+    if (!nome || !preco || !quantidadeEmEstoque || !idCat || !idFornecedor) {
+      res.status(400);
+      throw new Error("Campos faltando");
+    }
+    const categoria = await connection("categoria").where("idCat", idCat);
+    if (categoria.length === 0) {
+      res.status(404);
+      throw new Error("Categoria não encontrada");
+    }
+    const fornecedor = await connection("fornecedor").where("idFornecedor",idFornecedor);
+    if (fornecedor.length===0) {
+      res.status(404);
+      throw new Error("Fornecedor não encontrado");
+    }
+    const novoProduto = await connection("produto")
+      .insert({
+        nome,
+        preco,
+        quantidadeEmEstoque,
+        idCat,
+        idFornecedor
+      });
+  } catch (error: any) {
+    res.send(error.message || error.sql.message);
+  }
+});
 
 
 
