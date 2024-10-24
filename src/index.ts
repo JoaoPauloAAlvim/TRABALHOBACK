@@ -42,6 +42,26 @@ app.get("/produtos/:idProduto", async (req: Request, res: Response) => {
   }
 });
 
+app.delete("/produtos/:idProduto", async (req: Request, res: Response) => {
+  const idProduto = Number(req.params.idProduto);
+
+  try {
+    if (isNaN(idProduto)) {
+      res.status(400);
+      throw new Error("Digite um número por favor");
+    }
+    const produtoDeletado = await connection("produto")
+      .where("idProduto", idProduto)
+      .delete();
+    if (produtoDeletado === 0) {
+      res.status(404);
+      throw new Error("Produto não encontrado.");
+    }
+    res.status(204).send();
+  } catch (error: any) {
+    res.send(error.message || error.sql.message);
+  }
+});
 
 
 
