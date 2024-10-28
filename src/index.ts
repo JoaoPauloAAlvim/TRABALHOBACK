@@ -147,3 +147,30 @@ const PORT = process.env.PORT;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
+
+app.get("/categorias",async(req: Request, res: Response)=>{
+  try {
+    const categorias =await connection ("categoria");
+    res.status(200).send(categorias);
+  } catch (error:any) {
+    res.send(error.message || error.sql.message);
+  }
+});
+
+app.get("/produtos",async(req: Request, res: Response)=>{
+  try {
+    const produtos =await connection ("produto");
+    res.status(200).send(produtos);
+  } catch (error:any) {
+    res.send(error.message || error.sql.message);
+  }
+});
+
+app.get("/fornecedores",async(req: Request, res: Response)=>{
+  try {
+    const fornecedores =await connection ("fornecedor");
+    res.status(200).send(fornecedores);
+  } catch (error:any) {
+    res.send(error.message || error.sql.message);
+  }
+});
