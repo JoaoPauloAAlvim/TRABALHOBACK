@@ -3,6 +3,7 @@ import knex from "knex";
 import cors from "cors";
 import { Request, Response } from "express";
 import { connection } from "./connection";
+import { generatedId } from "./generatedId";
 
 const app = express();
 app.use(cors());
@@ -43,7 +44,7 @@ app.delete("/produtos/:idProduto", async (req: Request, res: Response) => {
       res.status(404);
       throw new Error("Produto não encontrado.");
     }
-    res.status(204).send();
+    res.status(204).send("Produto deletado");
   } catch (error: any) {
     res.send(error.message || error.sql.message);
   }
@@ -51,10 +52,11 @@ app.delete("/produtos/:idProduto", async (req: Request, res: Response) => {
 
 app.post("/produtos", async (req: Request, res: Response) => {
   const { nome, preco, quantidadeEmEstoque, idCat, idFornecedor } = req.body;
-  Number(preco),Number(quantidadeEmEstoque),Number(idCat),Number(idFornecedor);
+  Number(preco),Number(quantidadeEmEstoque);
+  const idProduto=generatedId()
 
   try {
-    if(isNaN(preco) || isNaN(quantidadeEmEstoque)||isNaN(idCat)||isNaN(idFornecedor)){
+    if(isNaN(preco) || isNaN(quantidadeEmEstoque)){
       res.status(400);
       throw new Error("Campo(s) com tipo inválido")
     }
@@ -81,18 +83,19 @@ app.post("/produtos", async (req: Request, res: Response) => {
         quantidadeEmEstoque,
         idCat
       });
+    res.status(201).send("Produto criado")
   } catch (error: any) {
     res.send(error.message || error.sql.message);
   }
 });
 
 app.put("/produtos/:idProduto", async (req: Request, res: Response) => {
-  const idProduto = Number(req.params.idProduto);
+  const idProduto = req.params.idProduto;
   const { nome, preco, quantidadeEmEstoque, idCat, idFornecedor } = req.body;
-  Number(preco),Number(quantidadeEmEstoque),Number(idCat),Number(idFornecedor);
+  Number(preco),Number(quantidadeEmEstoque);
   
   try {
-    if(isNaN(preco) || isNaN(quantidadeEmEstoque) ||isNaN(idProduto)||isNaN(idCat)||isNaN(idFornecedor)){
+    if(isNaN(preco) || isNaN(quantidadeEmEstoque)){
       res.status(400);
       throw new Error("Campo(s) com tipo inválido")
     }
@@ -130,11 +133,6 @@ app.put("/produtos/:idProduto", async (req: Request, res: Response) => {
    }
 });
 
-const PORT = process.env.PORT;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
-
 app.get("/categorias",async(req: Request, res: Response)=>{
   try {
     const categorias =await connection ("categoria");
@@ -159,5 +157,10 @@ app.get("/fornecedores",async(req: Request, res: Response)=>{
     res.status(200).send(fornecedores);
   } catch (error:any) {
     res.send(error.message || error.sql.message);
-  }
+  }
+});
+
+const PORT = process.env.PORT;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });
