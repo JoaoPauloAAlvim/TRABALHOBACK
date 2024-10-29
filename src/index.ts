@@ -1,5 +1,4 @@
 import express from "express";
-import knex from "knex";
 import cors from "cors";
 import { Request, Response } from "express";
 import { connection } from "./connection";
@@ -160,7 +159,6 @@ app.get("/fornecedores",async(req: Request, res: Response)=>{
   }
 });
 
-const PORT = process.env.PORT;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+app.listen(3003, () => {
+  console.log(`Server is running on port 3003`);
 });
