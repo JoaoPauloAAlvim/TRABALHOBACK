@@ -9,13 +9,9 @@ app.use(cors());
 app.use(express.json());
 
 app.get("/produtos/:idProduto", async (req: Request, res: Response) => {
-  const idProduto = Number(req.params.idProduto);
+  const idProduto = req.params.idProduto;
 
   try {
-    if (isNaN(idProduto)) {
-      res.status(400);
-      throw new Error("Digite um número por favor");
-    }
     const produtoProcurado = await connection("produto")
       .where("idproduto", idProduto);
     if (produtoProcurado.length === 0) {
@@ -29,15 +25,11 @@ app.get("/produtos/:idProduto", async (req: Request, res: Response) => {
 });
 
 app.delete("/produtos/:idProduto", async (req: Request, res: Response) => {
-  const idProduto = Number(req.params.idProduto);
+  const idProduto = req.params.idProduto;
 
   try {
-    if (isNaN(idProduto)) {
-      res.status(400);
-      throw new Error("Digite um número por favor");
-    }
     const produtoDeletado = await connection("produto")
-      .where("idProduto", idProduto)
+      .where("idproduto", idProduto)
       .delete();
     if (produtoDeletado === 0) {
       res.status(404);
@@ -64,23 +56,19 @@ app.post("/produtos", async (req: Request, res: Response) => {
       throw new Error("Campos faltando");
     }
     const categoria = await connection("categoria")
-      .where("idCat", idCat);
+      .where("idcat", idCat);
     if (categoria.length === 0) {
       res.status(404);
       throw new Error("Categoria não encontrada");
     }
-    const fornecedor = await connection("fornecedor")
-      .where("idFornecedor",idFornecedor);
-    if (fornecedor.length===0) {
-      res.status(404);
-      throw new Error("Fornecedor não encontrado");
-    }
+    
     await connection("produto")
       .insert({
+        idproduto:idProduto,
         nome,
         preco,
-        quantidadeEmEstoque,
-        idCat
+        quantidadeemestoque:quantidadeEmEstoque,
+        idcat:idCat
       });
     res.status(201).send("Produto criado")
   } catch (error: any) {
@@ -103,24 +91,19 @@ app.put("/produtos/:idProduto", async (req: Request, res: Response) => {
       throw new Error("Campos faltando");
     }
     const categoria = await connection("categoria")
-      .where("idCat", idCat);
+      .where("idcat", idCat);
     if (categoria.length === 0) {
       res.status(404);
       throw new Error("Categoria não encontrada");
     }
-    const fornecedor = await connection("fornecedor")
-      .where("idFornecedor",idFornecedor);
-    if (fornecedor.length===0) {
-      res.status(404);
-      throw new Error("Fornecedor não encontrado");
-    }
+
     const produtoAtualizado = await connection('produto')
-      .where("idProduto", idProduto)
+      .where("idproduto", idProduto)
       .update({
         nome,
         preco,
-        quantidadeEmEstoque,
-        idCat
+        quantidademEstoque:quantidadeEmEstoque,
+        idcat:idCat
       });
     if (produtoAtualizado === 0) {
       res.status(404);
