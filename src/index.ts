@@ -43,11 +43,11 @@ app.delete("/produtos/:idProduto", async (req: Request, res: Response) => {
 
 app.post("/produtos", async (req: Request, res: Response) => {
   const { nome, preco, quantidadeEmEstoque, idCat, idFornecedor } = req.body;
-  Number(preco),Number(quantidadeEmEstoque);
+  Number(preco),Number(quantidadeEmEstoque),Number(idCat),Number(idFornecedor);
   const idProduto=generatedId()
 
   try {
-    if(isNaN(preco) || isNaN(quantidadeEmEstoque)){
+    if(isNaN(preco) || isNaN(quantidadeEmEstoque)||isNaN(idCat)||isNaN(idFornecedor)){
       res.status(400);
       throw new Error("Campo(s) com tipo inválido")
     }
@@ -79,10 +79,10 @@ app.post("/produtos", async (req: Request, res: Response) => {
 app.put("/produtos/:idProduto", async (req: Request, res: Response) => {
   const idProduto = req.params.idProduto;
   const { nome, preco, quantidadeEmEstoque, idCat, idFornecedor } = req.body;
-  Number(preco),Number(quantidadeEmEstoque);
+  Number(preco),Number(quantidadeEmEstoque),Number(idCat),Number(idFornecedor);
   
   try {
-    if(isNaN(preco) || isNaN(quantidadeEmEstoque)){
+    if(isNaN(preco) || isNaN(quantidadeEmEstoque)||isNaN(idCat)||isNaN(idFornecedor)){
       res.status(400);
       throw new Error("Campo(s) com tipo inválido")
     }
