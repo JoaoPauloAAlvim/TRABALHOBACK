@@ -28,21 +28,24 @@ app.get("/produtos/:idProduto", async (req: Request, res: Response) => {
 });
 
 app.get("/produtos", async (req: Request, res: Response) => {
-  const nome =req.query.nome as string;
+  const nome = req.query.nome as string;
 
   try {
     let produtos;
-    if(nome){
-      produtos=await connection("produto").where("nome",'ILIKE',`%${nome}%`)
-    }else{
-      produtos=await connection("produto");
+    if (nome) {
+      produtos = await connection("produto").where(
+        "nome",
+        "ILIKE",
+        `%${nome}%`
+      );
+    } else {
+      produtos = await connection("produto");
     }
-    res.status(200).send(produtos)
-  } catch (error:any) {
+    res.status(200).send(produtos);
+  } catch (error: any) {
     res.send(error.message || error.sql.message);
   }
-
-})
+});
 
 app.delete("/produtos/:idProduto", async (req: Request, res: Response) => {
   const idProduto = req.params.idProduto as string;
@@ -64,7 +67,7 @@ app.delete("/produtos/:idProduto", async (req: Request, res: Response) => {
 app.post("/produtos", async (req: Request, res: Response) => {
   const { nome, preco, quantidadeEmEstoque, idCat } = req.body;
   Number(preco), Number(quantidadeEmEstoque), Number(idCat);
-  nome as string
+  nome as string;
   const idProduto = generatedId();
 
   try {
@@ -100,7 +103,7 @@ app.post("/produtos", async (req: Request, res: Response) => {
 app.put("/produtos/:idProduto", async (req: Request, res: Response) => {
   const idProduto = req.params.idProduto;
   const { nome, preco, quantidadeEmEstoque, idCat } = req.body;
-  nome as string
+  nome as string;
   Number(preco), Number(quantidadeEmEstoque), Number(idCat);
 
   try {
@@ -137,7 +140,26 @@ app.put("/produtos/:idProduto", async (req: Request, res: Response) => {
   }
 });
 
-
+app.patch("/produtos/:idProduto", async (req: Request, res: Response) => {
+  const idProduto = req.params.idProduto as string;
+  const quantidadeEmEstoque = req.body;
+  Number(quantidadeEmEstoque);
+  try {
+    if (!quantidadeEmEstoque) {
+      res.status(400);
+      throw new Error("Campos faltando");
+    }
+    if (isNaN(quantidadeEmEstoque)) {
+      res.status(400);
+      throw new Error("Campos com formato inválido");
+    }
+    const quantidadeAtualizada = await connection("produto")
+      .where("idproduto", idProduto)
+      .update({ quantidadeemestoque: quantidadeEmEstoque });
+  } catch (error: any) {
+    res.send(error.message || error.sql.message);
+  }
+});
 
 app.get("/categorias", async (req: Request, res: Response) => {
   try {
