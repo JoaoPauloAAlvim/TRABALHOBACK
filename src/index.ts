@@ -3,6 +3,7 @@ import cors from "cors";
 import { Request, Response } from "express";
 import { connection } from "./connection";
 import { generatedId } from "./generatedId";
+import typeProduto from "./types/typeProduto";
 
 const app = express();
 app.use(cors());
@@ -12,8 +13,10 @@ app.get("/produtos/:idProduto", async (req: Request, res: Response) => {
   const idProduto = req.params.idProduto;
 
   try {
-    const produtoProcurado = await connection("produto")
-      .where("idproduto", idProduto);
+    const produtoProcurado = await connection("produto").where(
+      "idproduto",
+      idProduto
+    );
     if (produtoProcurado.length === 0) {
       res.status(404);
       throw new Error("Produto não encontrado.");
@@ -24,8 +27,25 @@ app.get("/produtos/:idProduto", async (req: Request, res: Response) => {
   }
 });
 
+app.get("/produtos", async (req: Request, res: Response) => {
+  const nome =req.query.nome as string;
+
+  try {
+    let produtos;
+    if(nome){
+      produtos=await connection("produto").where("nome",'ILIKE',`%${nome}%`)
+    }else{
+      produtos=await connection("produto");
+    }
+    res.status(200).send(produtos)
+  } catch (error:any) {
+    res.send(error.message || error.sql.message);
+  }
+
+})
+
 app.delete("/produtos/:idProduto", async (req: Request, res: Response) => {
-  const idProduto = req.params.idProduto;
+  const idProduto = req.params.idProduto as string;
 
   try {
     const produtoDeletado = await connection("produto")
@@ -42,35 +62,36 @@ app.delete("/produtos/:idProduto", async (req: Request, res: Response) => {
 });
 
 app.post("/produtos", async (req: Request, res: Response) => {
-  const { nome, preco, quantidadeEmEstoque, idCat, idFornecedor } = req.body;
-  Number(preco),Number(quantidadeEmEstoque),Number(idCat),Number(idFornecedor);
-  const idProduto=generatedId()
+  const { nome, preco, quantidadeEmEstoque, idCat } = req.body;
+  Number(preco), Number(quantidadeEmEstoque), Number(idCat);
+  nome as string
+  const idProduto = generatedId();
 
   try {
-    if(isNaN(preco) || isNaN(quantidadeEmEstoque)||isNaN(idCat)||isNaN(idFornecedor)){
+    if (isNaN(preco) || isNaN(quantidadeEmEstoque) || isNaN(idCat)) {
       res.status(400);
-      throw new Error("Campo(s) com tipo inválido")
+      throw new Error("Campo(s) com tipo inválido");
     }
-    if (!nome || !preco || !quantidadeEmEstoque || !idCat || !idFornecedor) {
+    if (!nome || !preco || !quantidadeEmEstoque || !idCat) {
       res.status(400);
       throw new Error("Campos faltando");
     }
-    const categoria = await connection("categoria")
-      .where("idcat", idCat);
+    const categoria = await connection("categoria").where("idcat", idCat);
     if (categoria.length === 0) {
       res.status(404);
       throw new Error("Categoria não encontrada");
     }
-    
-    await connection("produto")
-      .insert({
-        idproduto:idProduto,
-        nome,
-        preco,
-        quantidadeemestoque:quantidadeEmEstoque,
-        idcat:idCat
-      });
-    res.status(201).send("Produto criado")
+
+    const novoProduto: typeProduto = {
+      idproduto: idProduto,
+      nome: nome,
+      preco: preco,
+      quantidadeemestoque: quantidadeEmEstoque,
+      idcat: idCat,
+    };
+
+    await connection("produto").insert({ novoProduto });
+    res.status(201).send("Produto criado");
   } catch (error: any) {
     res.send(error.message || error.sql.message);
   }
@@ -78,66 +99,69 @@ app.post("/produtos", async (req: Request, res: Response) => {
 
 app.put("/produtos/:idProduto", async (req: Request, res: Response) => {
   const idProduto = req.params.idProduto;
-  const { nome, preco, quantidadeEmEstoque, idCat, idFornecedor } = req.body;
-  Number(preco),Number(quantidadeEmEstoque),Number(idCat),Number(idFornecedor);
-  
+  const { nome, preco, quantidadeEmEstoque, idCat } = req.body;
+  nome as string
+  Number(preco), Number(quantidadeEmEstoque), Number(idCat);
+
   try {
-    if(isNaN(preco) || isNaN(quantidadeEmEstoque)||isNaN(idCat)||isNaN(idFornecedor)){
+    if (isNaN(preco) || isNaN(quantidadeEmEstoque) || isNaN(idCat)) {
       res.status(400);
-      throw new Error("Campo(s) com tipo inválido")
+      throw new Error("Campo(s) com tipo inválido");
     }
-    if (!nome || !preco || !quantidadeEmEstoque || !idCat || !idFornecedor) {
+    if (!nome || !preco || !quantidadeEmEstoque || !idCat) {
       res.status(400);
       throw new Error("Campos faltando");
     }
-    const categoria = await connection("categoria")
-      .where("idcat", idCat);
+    const categoria = await connection("categoria").where("idcat", idCat);
     if (categoria.length === 0) {
       res.status(404);
       throw new Error("Categoria não encontrada");
     }
-
-    const produtoAtualizado = await connection('produto')
+    const produtoAtualizado: typeProduto = {
+      idproduto: idProduto,
+      nome: nome,
+      preco: preco,
+      quantidadeemestoque: quantidadeEmEstoque,
+      idcat: idCat,
+    };
+    const atualizado = await connection("produto")
       .where("idproduto", idProduto)
-      .update({
-        nome,
-        preco,
-        quantidademEstoque:quantidadeEmEstoque,
-        idcat:idCat
-      });
-    if (produtoAtualizado === 0) {
+      .update({ produtoAtualizado });
+    if (atualizado === 0) {
       res.status(404);
       throw new Error("Produto não encontrado.");
     }
     res.status(200).send("Produto atualizado com sucesso");
   } catch (error: any) {
-    res.send(error.message || error.sql.message);;
-   }
+    res.send(error.message || error.sql.message);
+  }
 });
 
-app.get("/categorias",async(req: Request, res: Response)=>{
+
+
+app.get("/categorias", async (req: Request, res: Response) => {
   try {
-    const categorias =await connection ("categoria");
+    const categorias = await connection("categoria");
     res.status(200).send(categorias);
-  } catch (error:any) {
+  } catch (error: any) {
     res.send(error.message || error.sql.message);
   }
 });
 
-app.get("/produtos",async(req: Request, res: Response)=>{
+app.get("/produtos", async (req: Request, res: Response) => {
   try {
-    const produtos =await connection ("produto");
+    const produtos = await connection("produto");
     res.status(200).send(produtos);
-  } catch (error:any) {
+  } catch (error: any) {
     res.send(error.message || error.sql.message);
   }
 });
 
-app.get("/fornecedores",async(req: Request, res: Response)=>{
+app.get("/fornecedores", async (req: Request, res: Response) => {
   try {
-    const fornecedores =await connection ("fornecedor");
+    const fornecedores = await connection("fornecedor");
     res.status(200).send(fornecedores);
-  } catch (error:any) {
+  } catch (error: any) {
     res.send(error.message || error.sql.message);
   }
 });
