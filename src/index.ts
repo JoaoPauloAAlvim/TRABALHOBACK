@@ -50,6 +50,37 @@ app.get("/produtos", async (req: Request, res: Response) => {
 
 app.get("/produtos", async (req: Request, res: Response) => {
   const nome = req.query.nome as string;
+  const idCat=Number(req.query.idCat);
+  const precoMin = Number(req.query.precoMin) || 0;
+  const precoMax = Number(req.query.precoMax)|| Infinity;
+
+  try {
+    if(isNaN(idCat)|| isNaN(precoMax)|| isNaN(precoMin)){
+      res.status(400);
+      throw new Error("Campos com formato inválido")
+    }
+    const categoria = await connection("categoria").where("idcat",idCat);
+    if(categoria.length===0){
+      res.status(404);
+      throw new Error("Categoria não encontrada");
+    }
+     let query= connection("produto")
+     .where("preco",">=",precoMin)
+     .andWhere("preco","<=",precoMax);
+     if(nome){
+      query=query.andWhere("nome", "ILIKE", `%${nome}%`);
+     }
+     if(idCat){
+      query=query.andWhere("idcat",idCat)
+     }
+     const produtos=await query;
+     res.status(200).send(produtos);
+  } catch (error:any) {
+    res.send(error.message || error.sql.message);
+  }
+})
+app.get("/produtos", async (req: Request, res: Response) => {
+  const nome = req.query.nome as string;
 
   try {
     let produtos;
