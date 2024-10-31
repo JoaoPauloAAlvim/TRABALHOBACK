@@ -37,11 +37,14 @@ app.get("/produtos", async (req: Request, res: Response) => {
       res.status(400);
       throw new Error("Campos com formato inválido");
     }
-    const produtos = await connection("produto")
-      .where("idcat", idCat)
+    let query = connection("produto")
       .offset(offset)
       .limit(limit)
       .orderBy("nome", ordenacao);
+    if(idCat){
+      query=query.where("idcat", idCat);
+    }
+    const produtos = await query
     res.status(200).send(produtos)
   } catch (error: any) {
     res.send(error.message || error.sql.message);
