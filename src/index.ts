@@ -26,6 +26,27 @@ app.get("/produtos/:idProduto", async (req: Request, res: Response) => {
     res.send(error.message || error.sql.message);
   }
 });
+app.get("/produtos", async (req: Request, res: Response) => {
+  const offset = Number(req.query.offset) || 0;
+  const limit = Number(req.query.limit) || 10;
+  const ordenacao = req.query.ordenacao === "desc" ? "desc" : "asc";
+  const idCat = Number(req.query.idCat);
+
+  try {
+    if (isNaN(limit) || isNaN(offset) || isNaN(idCat)) {
+      res.status(400);
+      throw new Error("Campos com formato inválido");
+    }
+    const produtos = await connection("produto")
+      .where("idcat", idCat)
+      .offset(offset)
+      .limit(limit)
+      .orderBy("nome", ordenacao);
+    res.status(200).send(produtos)
+  } catch (error: any) {
+    res.send(error.message || error.sql.message);
+  }
+});
 
 app.get("/produtos", async (req: Request, res: Response) => {
   const nome = req.query.nome as string;
