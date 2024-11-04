@@ -2,7 +2,7 @@ type Produto={
     idproduto:string,
     nome:string,
     preco:number,
-    idcat:number,
+    idcategoria:string,
     quantidadeemestoque:number
 }
 
