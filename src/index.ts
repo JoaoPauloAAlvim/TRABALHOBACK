@@ -109,6 +109,34 @@ app.get("/produtos", async (req: Request, res: Response) => {
   }
 });
 
+app.get("produtos/:idProduto/fornecedor/:idFornecedor",async (req: Request, res: Response) => {
+    const idProduto = req.params.idProduto as string;
+    const idFornecedor = req.params.idFornecedor as string;
+
+    try {
+      const fornecedor = await connection("fornecedor").where(
+        "idfornecedor",
+        idFornecedor
+      );
+      if (fornecedor.length === 0) {
+        res.status(404);
+        throw new Error("Fornecedor não encontrado");
+      }
+      const produto = await connection("produto").where("idproduto", idProduto);
+      if (produto.length === 0) {
+        res.status(404);
+        throw new Error("Produto não encontrado");
+      }
+      const produtosProcurados = await connection("produto_fornecedor")
+        .where("idproduto", idProduto)
+        .andWhere("idfornecedor", idFornecedor);
+      res.status(200).send(produtosProcurados);
+    } catch (error: any) {
+      res.send(error.message || error.sql.message);
+    }
+  }
+);
+
 app.delete("/produtos/:idProduto", async (req: Request, res: Response) => {
   const idProduto = req.params.idProduto as string;
 
@@ -168,7 +196,7 @@ app.post("/produtos", async (req: Request, res: Response) => {
 
 app.put("/produtos/:idProduto", async (req: Request, res: Response) => {
   const idProduto = req.params.idProduto as string;
-  const idCategoria  = req.body.idCategoria as string;
+  const idCategoria = req.body.idCategoria as string;
   const nome = req.body.nome as string;
 
   try {
