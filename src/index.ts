@@ -109,7 +109,9 @@ app.get("/produtos", async (req: Request, res: Response) => {
   }
 });
 
-app.get("produtos/:idProduto/fornecedor/:idFornecedor",async (req: Request, res: Response) => {
+app.get(
+  "produtos/:idProduto/fornecedor/:idFornecedor",
+  async (req: Request, res: Response) => {
     const idProduto = req.params.idProduto as string;
     const idFornecedor = req.params.idFornecedor as string;
 
@@ -268,6 +270,32 @@ app.get("/categorias", async (req: Request, res: Response) => {
     res.send(error.message || error.sql.message);
   }
 });
+
+app.get(
+  "categorias/:idCategoria/produtos",
+  async (req: Request, res: Response) => {
+    const idCategoria = req.params.idCategoria as string;
+
+    try {
+      const categoria = await connection("categoria").where(
+        "idcategoria",
+        idCategoria
+      );
+      if (categoria.length === 0) {
+        res.status(404);
+        throw new Error("Categoria não encontrada");
+      }
+      const produtosDaCategoria = await connection("produto").where(
+        "idcategoria",
+        idCategoria
+      );
+
+      res.status(200).send(produtosDaCategoria);
+    } catch (error: any) {
+      res.send(error.message || error.sql.message);
+    }
+  }
+);
 
 app.get("/produtos", async (req: Request, res: Response) => {
   try {
