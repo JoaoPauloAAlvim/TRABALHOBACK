@@ -329,10 +329,11 @@ app.get(
         res.status(404);
         throw new Error("Fornecedor não encontrado");
       }
-      const produtosDoFornecedor = await connection("produto_fornecedor").where(
-        "idfornecedor",
-        idFornecedor
-      );
+      const produtosDoFornecedor = await connection("produto_fornecedor")
+      .join("produto", "produto_fornecedor.idproduto", "=", "produto.idproduto")
+      .join("fornecedor", "produto_fornecedor.idfornecedor", "=", "fornecedor.idfornecedor")
+      .where("produto_fornecedor.idfornecedor", idFornecedor)
+      .select("produto.nome as nomeProduto", "fornecedor.nomefornecedor as nomeFornecedor", "produto.*");
 
       res.status(200).send(produtosDoFornecedor);
     } catch (error: any) {
