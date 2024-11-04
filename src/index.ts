@@ -285,10 +285,10 @@ app.get(
         res.status(404);
         throw new Error("Categoria não encontrada");
       }
-      const produtosDaCategoria = await connection("produto").where(
-        "idcategoria",
-        idCategoria
-      );
+      const produtosDaCategoria = await connection("produto")
+      .join("categoria", "produto.idcategoria", "=", "categoria.idcategoria")
+      .where("produto.idcategoria", idCategoria)
+      .select("produto.*", "categoria.nomecategoria as nomeCategoria");
 
       res.status(200).send(produtosDaCategoria);
     } catch (error: any) {
@@ -314,6 +314,32 @@ app.get("/fornecedores", async (req: Request, res: Response) => {
     res.send(error.message || error.sql.message);
   }
 });
+
+app.get(
+  "fornecedores/:idFornecedor/produtos",
+  async (req: Request, res: Response) => {
+    const idFornecedor = req.params.idFornecedor as string;
+
+    try {
+      const fornecedor = await connection("fornecedor").where(
+        "idfornecedor",
+        idFornecedor
+      );
+      if (fornecedor.length === 0) {
+        res.status(404);
+        throw new Error("Fornecedor não encontrado");
+      }
+      const produtosDoFornecedor = await connection("produto_fornecedor").where(
+        "idfornecedor",
+        idFornecedor
+      );
+
+      res.status(200).send(produtosDoFornecedor);
+    } catch (error: any) {
+      res.send(error.message || error.sql.message);
+    }
+  }
+);
 
 app.listen(3003, () => {
   console.log(`Server is running on port 3003`);
