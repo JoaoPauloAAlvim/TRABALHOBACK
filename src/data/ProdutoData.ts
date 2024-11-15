@@ -116,7 +116,6 @@ export class ProdutoData {
       throw new Error(error.message || error.sql.message);
     }
   };
-// feito no business
   buscarProdutoDeUmFornecedorEspecifico = async (
     idProduto: string,
     idFornecedor: string
@@ -130,7 +129,7 @@ export class ProdutoData {
       throw new Error(error.message || error.sql.message);
     }
   };
-  buscarProdutoPorPrecoNomeCategoria = async (
+  buscarProdutosPorPrecoNomeCategoria = async (
     precoMin: number,
     precoMax: number,
     nome: string,
