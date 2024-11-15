@@ -2,6 +2,7 @@ import { ProdutoData } from "../data/ProdutoData";
 import { generatedId } from "../middlewares/generatedId";
 import { CategoriaData } from "../data/CategoriaData";
 import { FornecedorData } from "../data/FornecedorData";
+import { isJSDocPrivateTag } from "typescript";
 
 export class ProdutoBusiness {
   produtoData = new ProdutoData();
@@ -93,6 +94,18 @@ export class ProdutoBusiness {
       throw new Error(error);
     }
   };
+  deletaorProdutoPorId = async(idProduto:string)=>{
+    try {
+      const produto = await this.produtoData.verificarProdutoExiste(idProduto)
+      if (produto !=true) {
+        throw new Error("Produto inexistente");
+      }
+      this.produtoData.deletarProdutoPorId(idProduto)
+      return "";
+    } catch (error:any) {
+      throw new Error(error.message);
+    }
+  }
   buscarProdutoPorId = async (idProduto: string) => {
     try {
       const produto = await this.produtoData.buscarProdutoPorId(idProduto);
@@ -100,6 +113,7 @@ export class ProdutoBusiness {
       if (produto.length === 0) {
         throw new Error("Produto inexistente");
       }
+      return produto;
     } catch (error: any) {
       throw new Error(error.message);
     }

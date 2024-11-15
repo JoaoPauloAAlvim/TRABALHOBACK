@@ -202,4 +202,16 @@ export class ProdutoController {
       res.send(error.sqlMessage || error.message);
     }
   };
+  deletarProdutoPorId = async (req: Request, res: Response) => {
+    const idProduto = req.params.idProduto;
+    try {
+      this.produtoBusiness.deletaorProdutoPorId(idProduto);
+      res.status(204).send("Produto deletado com sucesso");
+    } catch (error: any) {
+      if (error.message.includes("Produto inexistente")) {
+        res.status(404).send(error.message);
+      }
+      res.send(error.sqlMessage || error.message);
+    }
+  };
 }

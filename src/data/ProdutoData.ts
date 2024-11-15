@@ -2,7 +2,6 @@ import { connection } from "../connection";
 import typeProduto from "../types/typeProduto";
 
 export class ProdutoData {
- 
   buscarTodosOsProdutos = async () => {
     try {
       const produtos = await connection("produto");
@@ -11,7 +10,7 @@ export class ProdutoData {
       throw new Error(error.sqlMessage || error.message);
     }
   };
- 
+
   buscarProdutoPorId = async (idProduto: string) => {
     try {
       const produto = await connection("produto").where({ idProduto });
@@ -20,7 +19,7 @@ export class ProdutoData {
       throw new Error(error.sqlMessage || error.message);
     }
   };
- 
+
   adicionarUmProduto = async (
     idProduto: string,
     idCategoria: string,
@@ -41,7 +40,7 @@ export class ProdutoData {
       throw new Error(error.sqlMessage || error.message);
     }
   };
- 
+
   atualizarUmProdutoPorId = async (
     idProduto: string,
     idCategoria: string,
@@ -64,7 +63,7 @@ export class ProdutoData {
       throw new Error(error.sqlMessage || error.message);
     }
   };
- 
+
   atualizarQuantidadeDeUmProdutoPorId = async (
     quantidadeEmEstoque: number,
     idProduto: string
@@ -77,7 +76,14 @@ export class ProdutoData {
       throw new Error(error.message || error.sql.message);
     }
   };
- 
+  deletarProdutoPorId = async (idProduto: string) => {
+    try {
+      await connection("produto").where("idproduto", idProduto).delete();
+    } catch (error: any) {
+      throw new Error(error.message || error.sql.message);
+    }
+  };
+
   buscarProdutosPorCategoriaComOrdenacaoPaginacao = async (
     idCategoria: string,
     offset: number,
@@ -98,7 +104,7 @@ export class ProdutoData {
       throw new Error(error.message || error.sql.message);
     }
   };
- 
+
   buscarProdutosPorNome = async (nome: string) => {
     try {
       let produtos;
@@ -138,13 +144,13 @@ export class ProdutoData {
     try {
       let query = connection("produto")
         .where("preco", ">=", precoMin)
-        .andWhere("preco", "<=", precoMax)
-      if(nome){
-        query=query.andWhere("nome", "ILIKE", `%${nome}%`)
+        .andWhere("preco", "<=", precoMax);
+      if (nome) {
+        query = query.andWhere("nome", "ILIKE", `%${nome}%`);
       }
-      if(idCategoria){
-        query=query.andWhere("idcategoria",idCategoria)
-      } 
+      if (idCategoria) {
+        query = query.andWhere("idcategoria", idCategoria);
+      }
       const produtos = await query;
       return produtos;
     } catch (error: any) {
