@@ -13,7 +13,7 @@ export class ProdutoData {
 
   buscarProdutoPorId = async (idProduto: string) => {
     try {
-      const produto = await connection("produto").where({ idProduto });
+      const produto = await connection("produto").where("idproduto",idProduto);
       return produto;
     } catch (error: any) {
       throw new Error(error.sqlMessage || error.message);
@@ -71,7 +71,7 @@ export class ProdutoData {
     try {
       await connection("produto")
         .where("idproduto", idProduto)
-        .update({ quantidadeemestoque: quantidadeEmEstoque });
+        .update( {quantidadeemestoque: quantidadeEmEstoque });
     } catch (error: any) {
       throw new Error(error.message || error.sql.message);
     }
@@ -91,7 +91,7 @@ export class ProdutoData {
     ordenacao: string
   ) => {
     try {
-      let query = connection("produto")
+      let query  = connection("produto")
         .offset(offset)
         .limit(limit)
         .orderBy(ordenacao);
@@ -111,8 +111,8 @@ export class ProdutoData {
       if (nome) {
         produtos = await connection("produto").where(
           "nome",
-          "ILIKE",
-          `${nome}`
+          "LIKE",
+          `%${nome}%`
         );
       } else {
         produtos = await connection("produto");
@@ -127,9 +127,18 @@ export class ProdutoData {
     idFornecedor: string
   ) => {
     try {
-      const produto = await connection("produto_fornecedor")
-        .where("idproduto", idProduto)
-        .andWhere("idfornecedor", idFornecedor);
+      const produto = await connection("produto_fornecedor as pf")
+      .join("produto as p", "pf.idproduto", "=", "p.idproduto") 
+      .join("fornecedor as f", "pf.idfornecedor", "=", "f.idfornecedor") 
+      .where("pf.idproduto", idProduto) 
+      .andWhere("pf.idfornecedor", idFornecedor)
+      .select(
+        "p.nome as nomeProduto", 
+        "p.preco",
+        "f.nomefornecedor as nomeFornecedor",
+        "f.contatofornecedor",
+        "f.enderecofornecedor" 
+      );
       return produto;
     } catch (error: any) {
       throw new Error(error.message || error.sql.message);
@@ -146,7 +155,7 @@ export class ProdutoData {
         .where("preco", ">=", precoMin)
         .andWhere("preco", "<=", precoMax);
       if (nome) {
-        query = query.andWhere("nome", "ILIKE", `%${nome}%`);
+        query = query.andWhere("nome", "LIKE", `%${nome}%`);
       }
       if (idCategoria) {
         query = query.andWhere("idcategoria", idCategoria);

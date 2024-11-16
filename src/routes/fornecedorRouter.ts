@@ -5,5 +5,5 @@ export const fornecedorRouter =express.Router()
 
 const fornecedorController= new FornecedorController()
 
-fornecedorRouter.get("/fornecedores",fornecedorController.buscarTodosFornecedores)
-fornecedorRouter.get("/fornecedores/:idfornecedor/produtos",fornecedorController.buscarTodosProdutosDeUmFornecedor)
+fornecedorRouter.get("/",fornecedorController.buscarTodosFornecedores)
+fornecedorRouter.get("/:idFornecedor/produtos",fornecedorController.buscarTodosProdutosDeUmFornecedor)

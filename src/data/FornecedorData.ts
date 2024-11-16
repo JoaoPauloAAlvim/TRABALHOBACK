@@ -11,31 +11,25 @@ export class FornecedorData {
   };
 
   buscarProdutosDeUmFornecedor = async (idFornecedor: string) => {
-    try {
-      const produtos = await connection("produto_fornecedor")
-        .join(
-          "produto",
-          "produto_fornecedor.idproduto",
-          "=",
-          "produto.idproduto"
-        )
-        .join(
-          "fornecedor",
-          "produto_fornecedor.idfornecedor",
-          "=",
-          "fornecedor.idfornecedor"
-        )
-        .where("produto_fornecedor.idfornecedor", idFornecedor)
-        .select(
-          "produto.nome as nomeProduto",
-          "fornecedor.nomefornecedor as nomeFornecedor",
-          "produto.*"
-        );
+    try {  
+      const produtos = await connection("produto_fornecedor as pf")
+      .join("produto as p", "pf.idproduto", "=", "p.idproduto")
+      .join("fornecedor as f", "pf.idfornecedor", "=", "f.idfornecedor")
+      .where("pf.idfornecedor", idFornecedor)
+      .select(
+        "p.idproduto",
+        "p.nome",
+        "p.preco",
+        "p.quantidadeemestoque",
+        "f.nomefornecedor"
+      );
       return produtos;
     } catch (error: any) {
+      console.error("Erro ao buscar produtos do fornecedor:", error);
       throw new Error(error.message || error.sql.message);
     }
   };
+  
   verificarFornecedorExiste = async(idFornecedor:string) =>{
     try {
         const fornecedor = await connection("fornecedor").where("idfornecedor",idFornecedor)

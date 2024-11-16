@@ -2,7 +2,6 @@ import { ProdutoData } from "../data/ProdutoData";
 import { generatedId } from "../middlewares/generatedId";
 import { CategoriaData } from "../data/CategoriaData";
 import { FornecedorData } from "../data/FornecedorData";
-import { isJSDocPrivateTag } from "typescript";
 
 export class ProdutoBusiness {
   produtoData = new ProdutoData();
@@ -19,28 +18,23 @@ export class ProdutoBusiness {
       if (!preco || !quantidadeEmEstoque || !idCategoria || !nome) {
         throw new Error("Campos faltando");
       }
-      const precoNumber = Number(preco);
-      const quantidadeEmEstoqueNumber = Number(quantidadeEmEstoque);
-      const idCategoriaString = idCategoria as string;
-      const nomeString = nome as string;
+      
 
-      const categoria = await this.categoriaData.verificarCategoriaExiste(
-        idCategoriaString
-      );
+      const categoria = await this.categoriaData.verificarCategoriaExiste(idCategoria);
 
       if (categoria != true) {
         throw new Error("Categoria inexistente");
       }
-      if (isNaN(precoNumber) || isNaN(quantidadeEmEstoqueNumber)) {
+      if (isNaN(preco) || isNaN(quantidadeEmEstoque)) {
         throw new Error("Campos com formato inválido");
       }
       const idProduto = generatedId();
       const produto = this.produtoData.adicionarUmProduto(
         idProduto,
-        idCategoriaString,
-        nomeString,
-        precoNumber,
-        quantidadeEmEstoqueNumber
+        idCategoria,
+        nome,
+        preco,
+        quantidadeEmEstoque
       );
       return produto;
     } catch (error: any) {
@@ -94,7 +88,8 @@ export class ProdutoBusiness {
       throw new Error(error);
     }
   };
-  deletaorProdutoPorId = async(idProduto:string)=>{
+  //ok
+  deletarProdutoPorId = async(idProduto:string)=>{
     try {
       const produto = await this.produtoData.verificarProdutoExiste(idProduto)
       if (produto !=true) {
@@ -136,8 +131,7 @@ export class ProdutoBusiness {
       if (!quantidadeEmEstoque || !idProduto) {
         throw new Error("Campos faltando");
       }
-      const quantidadeEmEstoqueNumber = Number(quantidadeEmEstoque);
-      if (isNaN(quantidadeEmEstoqueNumber)) {
+      if (isNaN(quantidadeEmEstoque)) {
         throw new Error("Campos com formato inválido");
       }
       const produto = await this.produtoData.verificarProdutoExiste(idProduto);
@@ -156,23 +150,22 @@ export class ProdutoBusiness {
     }
   };
   buscarProdutosPorCategoriaOrdernacaoPaginacao = async (
-    ordenacao: string,
     idCategoria: string,
     offset: number,
-    limit: number
+    limit: number,
+    ordenacao: string
   ) => {
-    const ordenacaoString = ordenacao == "desc" ? "desc" : "asc";
-    const idCategoriaString = idCategoria as string;
+    
     try {
       if (isNaN(limit) || isNaN(offset)) {
         throw new Error("Campos com formato inválido");
       }
       const produtos =
         await this.produtoData.buscarProdutosPorCategoriaComOrdenacaoPaginacao(
-          idCategoriaString,
+          idCategoria,
           offset,
           limit,
-          ordenacaoString
+          ordenacao
         );
 
       return produtos;
@@ -181,9 +174,8 @@ export class ProdutoBusiness {
     }
   };
   buscarProdutosPorNome = async (nome: string) => {
-    const nomeString = nome as string;
     try {
-      const produtos = await this.produtoData.buscarProdutosPorNome(nomeString);
+      const produtos = await this.produtoData.buscarProdutosPorNome(nome);
       return produtos;
     } catch (error: any) {
       throw new Error(error.message);
@@ -193,25 +185,23 @@ export class ProdutoBusiness {
     idProduto: string,
     idFornecedor: string
   ) => {
-    const idProdutoString = idProduto as string;
-    const idFornecedorString = idFornecedor as string;
     try {
       const produto = await this.produtoData.verificarProdutoExiste(
-        idProdutoString
+        idProduto
       );
       if (produto != true) {
         throw new Error("Produto inexistente");
       }
       const fornecedor = await this.fornecedorData.verificarFornecedorExiste(
-        idFornecedorString
+        idFornecedor
       );
       if (fornecedor != true) {
         throw new Error("Fornecedor inexistente");
       }
       const produtoDoFornecedor =
         await this.produtoData.verificarProdutoExisteNoFornecedor(
-          idProdutoString,
-          idFornecedorString
+          idProduto,
+          idFornecedor
         );
       if (produtoDoFornecedor != true) {
         throw new Error(
@@ -220,8 +210,8 @@ export class ProdutoBusiness {
       }
       const produtoProcurado =
         await this.produtoData.buscarProdutoDeUmFornecedorEspecifico(
-          idProdutoString,
-          idFornecedorString
+          idProduto,
+          idFornecedor
         );
       return produtoProcurado;
     } catch (error: any) {
