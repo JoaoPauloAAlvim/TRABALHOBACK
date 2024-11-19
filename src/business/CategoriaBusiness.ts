@@ -32,7 +32,9 @@ export class CategoriaBusiness {
   };
   buscarCategoriasPorNome = async (nomeCategoria: string) => {
     try {
-      const categorias = await this.categoriaData.buscarCategoriasPorNome(nomeCategoria);
+      const categorias = await this.categoriaData.buscarCategoriasPorNome(
+        nomeCategoria
+      );
       return categorias;
     } catch (error: any) {
       throw new Error(error.message);

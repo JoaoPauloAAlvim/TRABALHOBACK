@@ -12,16 +12,16 @@ export class CategoriaData {
 
   buscarTodosOsProdutosDeUmaCategoria = async (idCategoria: string) => {
     try {
-        const produtos = await connection("produto")
+      const produtos = await connection("produto")
         .join("categoria", "produto.idcategoria", "=", "categoria.idcategoria")
         .where("produto.idcategoria", idCategoria)
         .select("produto.*", "categoria.nomecategoria as nomeCategoria");
-        return produtos; 
-    } catch (error:any) {
-        throw new Error(error.message || error.sql.message);
+      return produtos;
+    } catch (error: any) {
+      throw new Error(error.message || error.sql.message);
     }
   };
-  buscarCategoriasPorNome = async (nomeCategoria:string)=>{
+  buscarCategoriasPorNome = async (nomeCategoria: string) => {
     try {
       let categorias;
       if (nomeCategoria) {
@@ -34,19 +34,22 @@ export class CategoriaData {
         categorias = await connection("categoria");
       }
       return categorias;
-    } catch (error:any) {
+    } catch (error: any) {
       throw new Error(error.message || error.sql.message);
     }
-  }
-  verificarCategoriaExiste = async(idCategoria:string) =>{
+  };
+  verificarCategoriaExiste = async (idCategoria: string) => {
     try {
-        const categoria = await connection("categoria").where("idcategoria",idCategoria)
-        if(categoria.length===0){
-            return false;
-        }
-        return true;
-    } catch (error:any) {
-        throw new Error(error.message || error.sql.message);
+      const categoria = await connection("categoria").where(
+        "idcategoria",
+        idCategoria
+      );
+      if (categoria.length === 0) {
+        return false;
+      }
+      return true;
+    } catch (error: any) {
+      throw new Error(error.message || error.sql.message);
     }
-  }
+  };
 }

@@ -149,8 +149,7 @@ export class ProdutoBusiness {
       throw new Error(error.message);
     }
   };
-  
-  
+
   buscarProdutoDeUmFornecedorEspecifico = async (
     idProduto: string,
     idFornecedor: string

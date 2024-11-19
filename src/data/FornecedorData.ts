@@ -25,7 +25,6 @@ export class FornecedorData {
         );
       return produtos;
     } catch (error: any) {
-      console.error("Erro ao buscar produtos do fornecedor:", error);
       throw new Error(error.message || error.sql.message);
     }
   };
@@ -40,7 +39,7 @@ export class FornecedorData {
       if (nomeFornecedor) {
         fornecedores = await connection("fornecedor")
           .where("nomefornecedor", "LIKE", `%${nomeFornecedor}%`)
-          .orderBy("nome", ordenacao)
+          .orderBy("nomefornecedor", ordenacao)
           .limit(limit)
           .offset(offset);
       } else {

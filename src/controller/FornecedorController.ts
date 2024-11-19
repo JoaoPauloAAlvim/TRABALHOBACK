@@ -8,7 +8,7 @@ export class FornecedorController {
         await this.fornecedorBusiness.buscarTodosOsFornecedores();
       res.status(200).send(fornecedores);
     } catch (error: any) {
-      res.status(500).send(error.sqlMessage || error.message);
+      res.send("Erro ao buscar fornecedores");
     }
   };
   buscarTodosProdutosDeUmFornecedor = async (req: Request, res: Response) => {
@@ -23,21 +23,16 @@ export class FornecedorController {
       if (error.message.includes("Fornecedor Inexistente")) {
         res.status(404).send(error.message);
       }
-      res.status(500).send(error.sqlMessage || error.message);
+      res.send("Erro ao buscar produtos ");
     }
   };
-  buscarFornecedoresPorNome = async (
-    req: Request,
-    res: Response
-  ) => {
-
+  buscarFornecedoresPorNome = async (req: Request, res: Response) => {
     const nomeFornecedor = req.query.nomeFornecedor as string;
+    const defaultOffset = 0;
+    const defaultLimit = 10;
     try {
-      const offset = req.query.offset
-        ? Math.max(Number(req.query.offset), 0)
-        : 0;
-      const limit = req.query.limit ? Math.max(Number(req.query.limit), 1) : 10;
-
+      const offset = parseInt(req.query.offset as string) || defaultOffset;
+      const limit = parseInt(req.query.limit as string) || defaultLimit;
       let ordenacao = req.query.ordenacao as string;
       if (!ordenacao || !["asc", "desc"].includes(ordenacao.toLowerCase())) {
         ordenacao = "asc";
@@ -55,7 +50,7 @@ export class FornecedorController {
       if (error.message) {
         res.status(422).send("Campos com formato inválido");
       } else {
-        res.send("Erro ao buscar produtos");
+        res.send("Erro ao buscar fornecedores");
       }
     }
   };

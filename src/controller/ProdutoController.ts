@@ -3,7 +3,6 @@ import { ProdutoBusiness } from "../business/ProdutoBusiness";
 
 export class ProdutoController {
   produtoBusiness = new ProdutoBusiness();
-  //ok
   cadastroDeProdutos = async (req: Request, res: Response) => {
     const { idCategoria, nome, preco, quantidadeEmEstoque } = req.body;
     try {
@@ -29,10 +28,9 @@ export class ProdutoController {
       if (error.message.includes("Tipo inválido")) {
         res.status(422).send(error.message);
       }
-      res.send(error.message);
+      res.send("Erro ao cadastrar produto");
     }
   };
-  //ok
   atualizacaoDeProdutos = async (req: Request, res: Response) => {
     const idProduto = req.params.idProduto as string;
     const { idCategoria, nome, preco, quantidadeEmEstoque } = req.body;
@@ -63,7 +61,6 @@ export class ProdutoController {
       }
     }
   };
-  //ok
   buscarProdutoPorId = async (req: Request, res: Response) => {
     const idProduto = req.params.idProduto as string;
     try {
@@ -77,7 +74,6 @@ export class ProdutoController {
       }
     }
   };
-  //ok
   buscarTodosOsProdutos = async (req: Request, res: Response) => {
     try {
       const produtos = await this.produtoBusiness.buscarTodosOsProdutos();
@@ -86,7 +82,6 @@ export class ProdutoController {
       res.send("Erro ao buscar produtos");
     }
   };
-  //ok
   atualizarQuantidadeDeUmProduto = async (req: Request, res: Response) => {
     const idProduto = req.params.idProduto as string;
     try {
@@ -109,7 +104,6 @@ export class ProdutoController {
     }
   };
 
-  //ok
   buscarProdutoDeUmFornecedorEspecifico = async (
     req: Request,
     res: Response
@@ -158,11 +152,10 @@ export class ProdutoController {
       if (error.message.includes("Campos com formato inválido")) {
         res.status(422).send(error.message);
       } else {
-        res.send(error.sqlMessage || error.message);
+        res.send("Erro ao buscar produtos");
       }
     }
   };
-  //ok
   deletarProdutoPorId = async (req: Request, res: Response) => {
     const idProduto = req.params.idProduto as string;
     try {
