@@ -18,9 +18,10 @@ export class ProdutoBusiness {
       if (!preco || !quantidadeEmEstoque || !idCategoria || !nome) {
         throw new Error("Campos faltando");
       }
-      
 
-      const categoria = await this.categoriaData.verificarCategoriaExiste(idCategoria);
+      const categoria = await this.categoriaData.verificarCategoriaExiste(
+        idCategoria
+      );
 
       if (categoria != true) {
         throw new Error("Categoria inexistente");
@@ -57,7 +58,7 @@ export class ProdutoBusiness {
         !idCategoria ||
         !idProduto
       ) {
-        throw new Error("Campo(s) faltando");
+        throw new Error("Campos faltando");
       }
       const precoNumber = Number(preco);
       const quantidadeEmEstoqueNumber = Number(quantidadeEmEstoque);
@@ -88,19 +89,18 @@ export class ProdutoBusiness {
       throw new Error(error);
     }
   };
-  //ok
-  deletarProdutoPorId = async(idProduto:string)=>{
+  deletarProdutoPorId = async (idProduto: string) => {
     try {
-      const produto = await this.produtoData.verificarProdutoExiste(idProduto)
-      if (produto !=true) {
+      const produto = await this.produtoData.verificarProdutoExiste(idProduto);
+      if (produto != true) {
         throw new Error("Produto inexistente");
       }
-      this.produtoData.deletarProdutoPorId(idProduto)
+      this.produtoData.deletarProdutoPorId(idProduto);
       return "";
-    } catch (error:any) {
+    } catch (error: any) {
       throw new Error(error.message);
     }
-  }
+  };
   buscarProdutoPorId = async (idProduto: string) => {
     try {
       const produto = await this.produtoData.buscarProdutoPorId(idProduto);
@@ -137,7 +137,7 @@ export class ProdutoBusiness {
       const produto = await this.produtoData.verificarProdutoExiste(idProduto);
 
       if (produto != true) {
-        throw new Error("Produto Inexistente");
+        throw new Error("Produto inexistente");
       }
       const quantidade =
         await this.produtoData.atualizarQuantidadeDeUmProdutoPorId(
@@ -149,46 +149,14 @@ export class ProdutoBusiness {
       throw new Error(error.message);
     }
   };
-  buscarProdutosPorCategoriaOrdernacaoPaginacao = async (
-    idCategoria: string,
-    offset: number,
-    limit: number,
-    ordenacao: string
-  ) => {
-    
-    try {
-      if (isNaN(limit) || isNaN(offset)) {
-        throw new Error("Campos com formato inválido");
-      }
-      const produtos =
-        await this.produtoData.buscarProdutosPorCategoriaComOrdenacaoPaginacao(
-          idCategoria,
-          offset,
-          limit,
-          ordenacao
-        );
-
-      return produtos;
-    } catch (error: any) {
-      throw new Error(error.message);
-    }
-  };
-  buscarProdutosPorNome = async (nome: string) => {
-    try {
-      const produtos = await this.produtoData.buscarProdutosPorNome(nome);
-      return produtos;
-    } catch (error: any) {
-      throw new Error(error.message);
-    }
-  };
+  
+  
   buscarProdutoDeUmFornecedorEspecifico = async (
     idProduto: string,
     idFornecedor: string
   ) => {
     try {
-      const produto = await this.produtoData.verificarProdutoExiste(
-        idProduto
-      );
+      const produto = await this.produtoData.verificarProdutoExiste(idProduto);
       if (produto != true) {
         throw new Error("Produto inexistente");
       }

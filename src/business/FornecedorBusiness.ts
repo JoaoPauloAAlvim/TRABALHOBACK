@@ -13,20 +13,41 @@ export class FornecedorBusiness {
     }
   };
   buscarProdutosDeUmFornecedor = async (idFornecedor: string) => {
-    const idFornecedorString = idFornecedor as string;
     try {
       const fornecedor = await this.fornecedorData.verificarFornecedorExiste(
-        idFornecedorString
+        idFornecedor
       );
       if (fornecedor != true) {
         throw new Error("Fornecedor Inexistente");
       }
       const produtos = await this.fornecedorData.buscarProdutosDeUmFornecedor(
-        idFornecedorString
+        idFornecedor
       );
       return produtos;
     } catch (error: any) {
-        throw new Error(error.message);
+      throw new Error(error.message);
+    }
+  };
+  buscarFornecedoresPorNome = async (
+    nomeFornecedor: string,
+    offset: number,
+    limit: number,
+    ordenacao: string
+  ) => {
+    try {
+      if (isNaN(limit) || isNaN(offset)) {
+        throw new Error("Campos com formato inválido");
+      }
+      const fornecedores = await this.fornecedorData.buscarFornecedoresPorNome(
+        offset,
+        limit,
+        nomeFornecedor,
+        ordenacao
+      );
+
+      return fornecedores;
+    } catch (error: any) {
+      throw new Error(error.message);
     }
   };
 }

@@ -29,7 +29,7 @@ export class ProdutoController {
       if (error.message.includes("Tipo inválido")) {
         res.status(422).send(error.message);
       }
-      res.status(500).send(error.sqlMessage || error.message);
+      res.send(error.message);
     }
   };
   //ok
@@ -58,8 +58,9 @@ export class ProdutoController {
       }
       if (error.message.includes("Tipo inválido")) {
         res.status(422).send(error.message);
+      } else {
+        res.send("Erro ao atualizar produto");
       }
-      res.status(500).send(error.sqlMessage || error.message);
     }
   };
   //ok
@@ -71,8 +72,9 @@ export class ProdutoController {
     } catch (error: any) {
       if (error.message.includes("Produto inexistente")) {
         res.status(404).send(error.message);
+      } else {
+        res.send("Erro ao buscar produto");
       }
-      res.send(error.sqlMessage || error.message);
     }
   };
   //ok
@@ -81,7 +83,7 @@ export class ProdutoController {
       const produtos = await this.produtoBusiness.buscarTodosOsProdutos();
       res.status(200).send(produtos);
     } catch (error: any) {
-      res.status(500).send(error.sqlMessage || error.message);
+      res.send("Erro ao buscar produtos");
     }
   };
   //ok
@@ -97,58 +99,16 @@ export class ProdutoController {
     } catch (error: any) {
       if (error.message.includes("Campos faltando")) {
         res.status(400).send(error.message);
-      }
-      if (error.message.includes("Tipo inválido")) {
+      } else if (error.message.includes("Tipo inválido")) {
         res.status(422).send(error.message);
-      }
-      if (error.message.includes("Produto inexistente")) {
+      } else if (error.message.includes("Produto inexistente")) {
         res.status(404).send(error.message);
+      } else {
+        res.send("Erro ao atualizar quantidade");
       }
-      res.status(500).send(error.sqlMessage || error.message);
     }
   };
 
-  buscarProdutosPorCategoriaOrdenacaoPaginacao = async (
-    req: Request,
-    res: Response
-  ) => {
-    const idCategoria = req.query.idCategoria as string;
-    try {
-      const offset = req.query.offset ? Number(req.query.offset) : 0;
-      const limit = req.query.limit ? Number(req.query.limit) : 10;
-      let ordenacao = req.query.ordenacao as string;
-      if (ordenacao !== "asc" && ordenacao !== "desc") {
-        ordenacao = "asc";
-      }
-      const produtos =
-        await this.produtoBusiness.buscarProdutosPorCategoriaOrdernacaoPaginacao(
-          idCategoria,
-          offset,
-          limit,
-          ordenacao
-        );
-
-      res.status(200).send(produtos);
-    } catch (error: any) {
-      if (error.message.includes("Campos com formato inválido")) {
-        res.status(422).send(error.message);
-      }
-      res.status(500).send(error.message);
-    }
-  };
-
-  buscarProdutosPorNome = async (
-    req: Request,
-    res: Response
-  ): Promise<void> => {
-    try {
-      const nome = req.query.nome as string;
-      const produtos = await this.produtoBusiness.buscarProdutosPorNome(nome);
-      res.status(200).send(produtos);
-    } catch (error: any) {
-      res.status(500).send(error.sqlMessage || error.message);
-    }
-  };
   //ok
   buscarProdutoDeUmFornecedorEspecifico = async (
     req: Request,
@@ -164,26 +124,15 @@ export class ProdutoController {
         );
       res.status(200).send(produto);
     } catch (error: any) {
-      if (error.message.includes("Produto inexistente")) {
+      if (error.message) {
         res.status(404).send(error.message);
+      } else {
+        res.send("Erro ao buscar produto");
       }
-      if (error.message.includes("Fornecedor inexistente")) {
-        res.status(404).send(error.message);
-      }
-      if (
-        error.message.includes(
-          "Nenhuma associação encontrada entre o produto e o fornecedor"
-        )
-      ) {
-        res.status(404).send(error.message);
-      }
-      res.status(500).send(error.sqlMessage || error.message);
     }
   };
-  buscarProdutosPorPrecoNomeCategoria = async (
-    req: Request,
-    res: Response
-  ): Promise<void> => {
+
+  buscarProdutosPorPrecoNomeCategoria = async (req: Request, res: Response) => {
     const nome = req.query.nome as string;
     const idCategoria = req.query.idCategoria as string;
     try {
@@ -208,12 +157,13 @@ export class ProdutoController {
       }
       if (error.message.includes("Campos com formato inválido")) {
         res.status(422).send(error.message);
+      } else {
+        res.send(error.sqlMessage || error.message);
       }
-      res.status(500).send(error.sqlMessage || error.message);
     }
   };
   //ok
-  deletarProdutoPorId = async (req: Request, res: Response): Promise<void> => {
+  deletarProdutoPorId = async (req: Request, res: Response) => {
     const idProduto = req.params.idProduto as string;
     try {
       await this.produtoBusiness.deletarProdutoPorId(idProduto);
@@ -221,8 +171,9 @@ export class ProdutoController {
     } catch (error: any) {
       if (error.message.includes("Produto inexistente")) {
         res.status(404).send(error.message);
+      } else {
+        res.send("Erro ao deletar produto");
       }
-      res.status(500).send(error.sqlMessage || error.message);
     }
   };
 }

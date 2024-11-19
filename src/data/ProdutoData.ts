@@ -1,7 +1,9 @@
 import { connection } from "../connection";
 import typeProduto from "../types/typeProduto";
+import { CategoriaData } from "./CategoriaData";
 
 export class ProdutoData {
+  categoriaData = new CategoriaData();
   buscarTodosOsProdutos = async () => {
     try {
       const produtos = await connection("produto");
@@ -13,7 +15,7 @@ export class ProdutoData {
 
   buscarProdutoPorId = async (idProduto: string) => {
     try {
-      const produto = await connection("produto").where("idproduto",idProduto);
+      const produto = await connection("produto").where("idproduto", idProduto);
       return produto;
     } catch (error: any) {
       throw new Error(error.sqlMessage || error.message);
@@ -71,7 +73,7 @@ export class ProdutoData {
     try {
       await connection("produto")
         .where("idproduto", idProduto)
-        .update( {quantidadeemestoque: quantidadeEmEstoque });
+        .update({ quantidadeemestoque: quantidadeEmEstoque });
     } catch (error: any) {
       throw new Error(error.message || error.sql.message);
     }
@@ -84,61 +86,23 @@ export class ProdutoData {
     }
   };
 
-  buscarProdutosPorCategoriaComOrdenacaoPaginacao = async (
-    idCategoria: string,
-    offset: number,
-    limit: number,
-    ordenacao: string
-  ) => {
-    try {
-      let query  = connection("produto")
-        .offset(offset)
-        .limit(limit)
-        .orderBy(ordenacao);
-      if (idCategoria) {
-        query = query.where("idcategoria", idCategoria);
-      }
-      const produtos = await query;
-      return produtos;
-    } catch (error: any) {
-      throw new Error(error.message || error.sql.message);
-    }
-  };
-
-  buscarProdutosPorNome = async (nome: string) => {
-    try {
-      let produtos;
-      if (nome) {
-        produtos = await connection("produto").where(
-          "nome",
-          "LIKE",
-          `%${nome}%`
-        );
-      } else {
-        produtos = await connection("produto");
-      }
-      return produtos;
-    } catch (error: any) {
-      throw new Error(error.message || error.sql.message);
-    }
-  };
   buscarProdutoDeUmFornecedorEspecifico = async (
     idProduto: string,
     idFornecedor: string
   ) => {
     try {
       const produto = await connection("produto_fornecedor as pf")
-      .join("produto as p", "pf.idproduto", "=", "p.idproduto") 
-      .join("fornecedor as f", "pf.idfornecedor", "=", "f.idfornecedor") 
-      .where("pf.idproduto", idProduto) 
-      .andWhere("pf.idfornecedor", idFornecedor)
-      .select(
-        "p.nome as nomeProduto", 
-        "p.preco",
-        "f.nomefornecedor as nomeFornecedor",
-        "f.contatofornecedor",
-        "f.enderecofornecedor" 
-      );
+        .join("produto as p", "pf.idproduto", "=", "p.idproduto")
+        .join("fornecedor as f", "pf.idfornecedor", "=", "f.idfornecedor")
+        .where("pf.idproduto", idProduto)
+        .andWhere("pf.idfornecedor", idFornecedor)
+        .select(
+          "p.nome as nomeProduto",
+          "p.preco",
+          "f.nomefornecedor as nomeFornecedor",
+          "f.contatofornecedor",
+          "f.enderecofornecedor"
+        );
       return produto;
     } catch (error: any) {
       throw new Error(error.message || error.sql.message);

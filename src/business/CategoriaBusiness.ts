@@ -13,10 +13,9 @@ export class CategoriaBusiness {
   };
 
   buscarTodosOsProdutosDeUmaCategoria = async (idCategoria: string) => {
-    const idCategoriaString = idCategoria as string;
     try {
       const categoria = await this.categoriaData.verificarCategoriaExiste(
-        idCategoriaString
+        idCategoria
       );
       if (categoria != true) {
         throw new Error("Categoria inexistente");
@@ -24,9 +23,17 @@ export class CategoriaBusiness {
 
       const produtos =
         await this.categoriaData.buscarTodosOsProdutosDeUmaCategoria(
-          idCategoriaString
+          idCategoria
         );
       return produtos;
+    } catch (error: any) {
+      throw new Error(error.message);
+    }
+  };
+  buscarCategoriasPorNome = async (nomeCategoria: string) => {
+    try {
+      const categorias = await this.categoriaData.buscarCategoriasPorNome(nomeCategoria);
+      return categorias;
     } catch (error: any) {
       throw new Error(error.message);
     }

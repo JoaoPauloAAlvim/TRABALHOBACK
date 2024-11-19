@@ -21,6 +21,23 @@ export class CategoriaData {
         throw new Error(error.message || error.sql.message);
     }
   };
+  buscarCategoriasPorNome = async (nomeCategoria:string)=>{
+    try {
+      let categorias;
+      if (nomeCategoria) {
+        categorias = await connection("categoria").where(
+          "nomecategoria",
+          "LIKE",
+          `%${nomeCategoria}%`
+        );
+      } else {
+        categorias = await connection("categoria");
+      }
+      return categorias;
+    } catch (error:any) {
+      throw new Error(error.message || error.sql.message);
+    }
+  }
   verificarCategoriaExiste = async(idCategoria:string) =>{
     try {
         const categoria = await connection("categoria").where("idcategoria",idCategoria)
