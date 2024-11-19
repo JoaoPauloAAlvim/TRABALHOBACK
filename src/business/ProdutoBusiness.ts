@@ -197,13 +197,16 @@ export class ProdutoBusiness {
       if (isNaN(precoMax) || isNaN(precoMin)) {
         throw new Error("Campos com formato inválido");
       }
-      const categoria = await this.categoriaData.verificarCategoriaExiste(
-        idCategoriaString
-      );
-
-      if (categoria != true) {
-        throw new Error("Categoria inexistente");
+      if(idCategoria){
+        const categoria = await this.categoriaData.verificarCategoriaExiste(
+          idCategoriaString
+        );
+  
+        if (categoria != true) {
+          throw new Error("Categoria inexistente");
+        }
       }
+      
       if (precoMin > precoMax) {
         throw new Error("Preço mínimo maior que preço máximo");
       }
