@@ -21,14 +21,13 @@ export class ProdutoController {
     } catch (error: any) {
       if (error.message.includes("Categoria inexistente")) {
         res.status(404).send(error.message);
-      }
-      if (error.message.includes("Campos faltando")) {
+      } else if (error.message.includes("Campos faltando")) {
         res.status(400).send(error.message);
-      }
-      if (error.message.includes("Tipo inválido")) {
+      } else if (error.message.includes("Campos com formato inválido")) {
         res.status(422).send(error.message);
+      } else {
+        res.send("Erro ao cadastrar produto");
       }
-      res.send("Erro ao cadastrar produto");
     }
   };
   atualizacaoDeProdutos = async (req: Request, res: Response) => {
@@ -50,11 +49,11 @@ export class ProdutoController {
     } catch (error: any) {
       if (error.message.includes("Categoria inexistente")) {
         res.status(404).send(error.message);
-      }
-      if (error.message.includes("Campos faltando")) {
+      } else if (error.message.includes("Produto inexistente")) {
+        res.status(404).send(error.message);
+      } else if (error.message.includes("Campos faltando")) {
         res.status(400).send(error.message);
-      }
-      if (error.message.includes("Tipo inválido")) {
+      } else if (error.message.includes("Campos com formato inválido")) {
         res.status(422).send(error.message);
       } else {
         res.send("Erro ao atualizar produto");
@@ -85,24 +84,35 @@ export class ProdutoController {
   atualizarQuantidadeDeUmProduto = async (req: Request, res: Response) => {
     const idProduto = req.params.idProduto as string;
     try {
-      const quantidadeEmEstoque = Number(req.body.quantidadeEmEstoque);
+      const quantidadeEmEstoque = req.body.quantidadeEmEstoque;
+  
+      if (!idProduto || quantidadeEmEstoque === undefined) {
+        throw new Error("Campos faltando");
+      }
+  
+      const quantidadeNumber = Number(quantidadeEmEstoque);
+      if (isNaN(quantidadeNumber)) {
+        throw new Error("Campos com formato inválido");
+      }
+  
       await this.produtoBusiness.atualizarQuantidadeDeUmProduto(
         idProduto,
-        quantidadeEmEstoque
+        quantidadeNumber
       );
       res.status(200).send("Quantidade do produto atualizada");
     } catch (error: any) {
       if (error.message.includes("Campos faltando")) {
         res.status(400).send(error.message);
-      } else if (error.message.includes("Tipo inválido")) {
+      } else if (error.message.includes("Campos com formato inválido")) {
         res.status(422).send(error.message);
       } else if (error.message.includes("Produto inexistente")) {
         res.status(404).send(error.message);
       } else {
-        res.send("Erro ao atualizar quantidade");
+        res.status(500).send("Erro ao atualizar quantidade");
       }
     }
   };
+  
 
   buscarProdutoDeUmFornecedorEspecifico = async (
     req: Request,
@@ -146,10 +156,10 @@ export class ProdutoController {
       if (error.message.includes("Categoria inexistente")) {
         res.status(404).send(error.message);
       }
-      if (error.message.includes("Preço mínimo maior que preço máximo")) {
+      else if (error.message.includes("Preço mínimo maior que preço máximo")) {
         res.status(422).send(error.message);
       }
-      if (error.message.includes("Campos com formato inválido")) {
+      else if (error.message.includes("Campos com formato inválido")) {
         res.status(422).send(error.message);
       } else {
         res.send("Erro ao buscar produtos");

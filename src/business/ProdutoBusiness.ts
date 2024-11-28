@@ -15,6 +15,9 @@ export class ProdutoBusiness {
     nome: string
   ) => {
     try {
+      if (isNaN(preco) || isNaN(quantidadeEmEstoque)) {
+        throw new Error("Campos com formato inválido");
+      }
       if (!preco || !quantidadeEmEstoque || !idCategoria || !nome) {
         throw new Error("Campos faltando");
       }
@@ -25,9 +28,6 @@ export class ProdutoBusiness {
 
       if (categoria != true) {
         throw new Error("Categoria inexistente");
-      }
-      if (isNaN(preco) || isNaN(quantidadeEmEstoque)) {
-        throw new Error("Campos com formato inválido");
       }
       const idProduto = generatedId();
       const produto = this.produtoData.adicionarUmProduto(
@@ -51,6 +51,9 @@ export class ProdutoBusiness {
     idProduto: string
   ) => {
     try {
+      if (isNaN(preco) || isNaN(quantidadeEmEstoque)) {
+        throw new Error("Campos com formato inválido");
+      }
       if (
         !nome ||
         !preco ||
@@ -60,29 +63,24 @@ export class ProdutoBusiness {
       ) {
         throw new Error("Campos faltando");
       }
-      const precoNumber = Number(preco);
-      const quantidadeEmEstoqueNumber = Number(quantidadeEmEstoque);
-      const idCategoriaString = idCategoria as string;
-      const nomeString = nome as string;
-      const idProdutoString = idProduto as string;
 
       const categoria = await this.categoriaData.verificarCategoriaExiste(
-        idCategoriaString
+        idCategoria
       );
 
       if (categoria != true) {
         throw new Error("Categoria inexistente");
       }
-
-      if (isNaN(precoNumber) || isNaN(quantidadeEmEstoqueNumber)) {
-        throw new Error("Campos com formato inválido");
+      const produto = await this.produtoData.verificarProdutoExiste(idProduto);
+      if (produto != true) {
+        throw new Error("Produto inexistente");
       }
       const produtoAtualizado = this.produtoData.atualizarUmProdutoPorId(
-        idProdutoString,
-        idCategoriaString,
-        nomeString,
-        precoNumber,
-        quantidadeEmEstoqueNumber
+        idProduto,
+        idCategoria,
+        nome,
+        preco,
+        quantidadeEmEstoque
       );
       return produtoAtualizado;
     } catch (error: any) {
@@ -128,17 +126,19 @@ export class ProdutoBusiness {
     quantidadeEmEstoque: number
   ) => {
     try {
-      if (!quantidadeEmEstoque || !idProduto) {
+      if (!idProduto || quantidadeEmEstoque === undefined) {
         throw new Error("Campos faltando");
       }
+
       if (isNaN(quantidadeEmEstoque)) {
         throw new Error("Campos com formato inválido");
       }
-      const produto = await this.produtoData.verificarProdutoExiste(idProduto);
 
-      if (produto != true) {
+      const produto = await this.produtoData.verificarProdutoExiste(idProduto);
+      if (!produto) {
         throw new Error("Produto inexistente");
       }
+
       const quantidade =
         await this.produtoData.atualizarQuantidadeDeUmProdutoPorId(
           quantidadeEmEstoque,
@@ -197,16 +197,16 @@ export class ProdutoBusiness {
       if (isNaN(precoMax) || isNaN(precoMin)) {
         throw new Error("Campos com formato inválido");
       }
-      if(idCategoria){
+      if (idCategoria) {
         const categoria = await this.categoriaData.verificarCategoriaExiste(
           idCategoriaString
         );
-  
+
         if (categoria != true) {
           throw new Error("Categoria inexistente");
         }
       }
-      
+
       if (precoMin > precoMax) {
         throw new Error("Preço mínimo maior que preço máximo");
       }

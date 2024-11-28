@@ -18,7 +18,7 @@ export class CategoriaBusiness {
         idCategoria
       );
       if (categoria != true) {
-        throw new Error("Categoria inexistente");
+        throw new Error("Categoria Inexistente");
       }
 
       const produtos =

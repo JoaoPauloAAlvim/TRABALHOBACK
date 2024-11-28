@@ -22,8 +22,9 @@ export class CategoriaController {
     } catch (error: any) {
       if (error.message.includes("Categoria Inexistente")) {
         res.status(404).send(error.message);
+      }else{
+        res.send("Erro ao buscar produtos");
       }
-      res.send("Erro ao buscar produtos");
     }
   };
   buscarCategoriasPorNome = async (req: Request, res: Response) => {

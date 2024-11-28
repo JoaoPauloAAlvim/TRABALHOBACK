@@ -22,8 +22,9 @@ export class FornecedorController {
     } catch (error: any) {
       if (error.message.includes("Fornecedor Inexistente")) {
         res.status(404).send(error.message);
+      }else{
+        res.send("Erro ao buscar produtos ");
       }
-      res.send("Erro ao buscar produtos ");
     }
   };
   buscarFornecedoresPorNome = async (req: Request, res: Response) => {
