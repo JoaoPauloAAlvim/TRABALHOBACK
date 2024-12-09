@@ -1,5 +1,14 @@
 import { Request, Response } from "express";
 import { ProdutoBusiness } from "../business/ProdutoBusiness";
+import {
+  AssociationNotFoundError,
+  CategoryNotFoundError,
+  InvalidFormatError,
+  InvalidPriceRangeError,
+  MissingFieldsError,
+  ProductNotFoundError,
+  SupplierNotFoundError,
+} from "../errors/CustomErrors";
 
 export class ProdutoController {
   produtoBusiness = new ProdutoBusiness();
@@ -19,11 +28,11 @@ export class ProdutoController {
       );
       res.status(201).send("Produto cadastrado com sucesso");
     } catch (error: any) {
-      if (error.message.includes("Categoria inexistente")) {
+      if (error instanceof CategoryNotFoundError) {
         res.status(404).send(error.message);
-      } else if (error.message.includes("Campos faltando")) {
+      } else if (error instanceof MissingFieldsError) {
         res.status(400).send(error.message);
-      } else if (error.message.includes("Campos com formato inválido")) {
+      } else if (error instanceof InvalidFormatError) {
         res.status(422).send(error.message);
       } else {
         res.send("Erro ao cadastrar produto");
@@ -47,13 +56,13 @@ export class ProdutoController {
       );
       res.status(200).send("Produto atualizado com sucesso");
     } catch (error: any) {
-      if (error.message.includes("Categoria inexistente")) {
+      if (error instanceof CategoryNotFoundError) {
         res.status(404).send(error.message);
-      } else if (error.message.includes("Produto inexistente")) {
+      } else if (error instanceof ProductNotFoundError) {
         res.status(404).send(error.message);
-      } else if (error.message.includes("Campos faltando")) {
+      } else if (error instanceof MissingFieldsError) {
         res.status(400).send(error.message);
-      } else if (error.message.includes("Campos com formato inválido")) {
+      } else if (error instanceof InvalidFormatError) {
         res.status(422).send(error.message);
       } else {
         res.send("Erro ao atualizar produto");
@@ -66,7 +75,7 @@ export class ProdutoController {
       const produto = await this.produtoBusiness.buscarProdutoPorId(idProduto);
       res.status(200).send(produto);
     } catch (error: any) {
-      if (error.message.includes("Produto inexistente")) {
+      if (error instanceof ProductNotFoundError) {
         res.status(404).send(error.message);
       } else {
         res.send("Erro ao buscar produto");
@@ -85,34 +94,33 @@ export class ProdutoController {
     const idProduto = req.params.idProduto as string;
     try {
       const quantidadeEmEstoque = req.body.quantidadeEmEstoque;
-  
+
       if (!idProduto || quantidadeEmEstoque === undefined) {
-        throw new Error("Campos faltando");
+        throw new MissingFieldsError();
       }
-  
+
       const quantidadeNumber = Number(quantidadeEmEstoque);
       if (isNaN(quantidadeNumber)) {
-        throw new Error("Campos com formato inválido");
+        throw new InvalidFormatError();
       }
-  
+
       await this.produtoBusiness.atualizarQuantidadeDeUmProduto(
         idProduto,
         quantidadeNumber
       );
       res.status(200).send("Quantidade do produto atualizada");
     } catch (error: any) {
-      if (error.message.includes("Campos faltando")) {
+      if (error instanceof MissingFieldsError) {
         res.status(400).send(error.message);
-      } else if (error.message.includes("Campos com formato inválido")) {
+      } else if (error instanceof InvalidFormatError) {
         res.status(422).send(error.message);
-      } else if (error.message.includes("Produto inexistente")) {
+      } else if (error instanceof ProductNotFoundError) {
         res.status(404).send(error.message);
       } else {
         res.status(500).send("Erro ao atualizar quantidade");
       }
     }
   };
-  
 
   buscarProdutoDeUmFornecedorEspecifico = async (
     req: Request,
@@ -128,7 +136,11 @@ export class ProdutoController {
         );
       res.status(200).send(produto);
     } catch (error: any) {
-      if (error.message) {
+      if (error instanceof ProductNotFoundError) {
+        res.status(404).send(error.message);
+      } else if (error instanceof SupplierNotFoundError) {
+        res.status(404).send(error.message);
+      } else if (error instanceof AssociationNotFoundError) {
         res.status(404).send(error.message);
       } else {
         res.send("Erro ao buscar produto");
@@ -153,13 +165,11 @@ export class ProdutoController {
         );
       res.status(200).send(produtos);
     } catch (error: any) {
-      if (error.message.includes("Categoria inexistente")) {
+      if (error instanceof CategoryNotFoundError) {
         res.status(404).send(error.message);
-      }
-      else if (error.message.includes("Preço mínimo maior que preço máximo")) {
+      } else if (error instanceof InvalidPriceRangeError) {
         res.status(422).send(error.message);
-      }
-      else if (error.message.includes("Campos com formato inválido")) {
+      } else if (error instanceof InvalidFormatError) {
         res.status(422).send(error.message);
       } else {
         res.send("Erro ao buscar produtos");
@@ -172,7 +182,7 @@ export class ProdutoController {
       await this.produtoBusiness.deletarProdutoPorId(idProduto);
       res.status(204).send();
     } catch (error: any) {
-      if (error.message.includes("Produto inexistente")) {
+      if (error instanceof ProductNotFoundError) {
         res.status(404).send(error.message);
       } else {
         res.send("Erro ao deletar produto");

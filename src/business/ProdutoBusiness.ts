@@ -2,6 +2,16 @@ import { ProdutoData } from "../data/ProdutoData";
 import { generatedId } from "../middlewares/generatedId";
 import { CategoriaData } from "../data/CategoriaData";
 import { FornecedorData } from "../data/FornecedorData";
+import {
+  AssociationNotFoundError,
+  CategoryNotFoundError,
+  InvalidFormatError,
+  InvalidPriceRangeError,
+  MissingFieldsError,
+  ProductNotFoundError,
+  SupplierNotFoundError,
+  
+} from "../errors/CustomErrors";
 
 export class ProdutoBusiness {
   produtoData = new ProdutoData();
@@ -14,12 +24,11 @@ export class ProdutoBusiness {
     idCategoria: string,
     nome: string
   ) => {
-    try {
       if (isNaN(preco) || isNaN(quantidadeEmEstoque)) {
-        throw new Error("Campos com formato inválido");
+        throw new InvalidFormatError();
       }
       if (!preco || !quantidadeEmEstoque || !idCategoria || !nome) {
-        throw new Error("Campos faltando");
+        throw new MissingFieldsError();
       }
 
       const categoria = await this.categoriaData.verificarCategoriaExiste(
@@ -27,7 +36,7 @@ export class ProdutoBusiness {
       );
 
       if (categoria != true) {
-        throw new Error("Categoria inexistente");
+        throw new CategoryNotFoundError();
       }
       const idProduto = generatedId();
       const produto = this.produtoData.adicionarUmProduto(
@@ -38,10 +47,7 @@ export class ProdutoBusiness {
         quantidadeEmEstoque
       );
       return produto;
-    } catch (error: any) {
-      throw new Error(error);
-    }
-  };
+    } 
 
   atualizacaoDeProdutos = async (
     preco: number,
@@ -50,9 +56,8 @@ export class ProdutoBusiness {
     nome: string,
     idProduto: string
   ) => {
-    try {
       if (isNaN(preco) || isNaN(quantidadeEmEstoque)) {
-        throw new Error("Campos com formato inválido");
+        throw new InvalidFormatError();
       }
       if (
         !nome ||
@@ -61,7 +66,7 @@ export class ProdutoBusiness {
         !idCategoria ||
         !idProduto
       ) {
-        throw new Error("Campos faltando");
+        throw new MissingFieldsError();
       }
 
       const categoria = await this.categoriaData.verificarCategoriaExiste(
@@ -69,11 +74,11 @@ export class ProdutoBusiness {
       );
 
       if (categoria != true) {
-        throw new Error("Categoria inexistente");
+        throw new CategoryNotFoundError();
       }
       const produto = await this.produtoData.verificarProdutoExiste(idProduto);
       if (produto != true) {
-        throw new Error("Produto inexistente");
+        throw new ProductNotFoundError();
       }
       const produtoAtualizado = this.produtoData.atualizarUmProdutoPorId(
         idProduto,
@@ -83,87 +88,66 @@ export class ProdutoBusiness {
         quantidadeEmEstoque
       );
       return produtoAtualizado;
-    } catch (error: any) {
-      throw new Error(error);
-    }
-  };
+    } 
   deletarProdutoPorId = async (idProduto: string) => {
-    try {
       const produto = await this.produtoData.verificarProdutoExiste(idProduto);
       if (produto != true) {
-        throw new Error("Produto inexistente");
+        throw new ProductNotFoundError();
       }
       this.produtoData.deletarProdutoPorId(idProduto);
       return "";
-    } catch (error: any) {
-      throw new Error(error.message);
-    }
-  };
+    } 
   buscarProdutoPorId = async (idProduto: string) => {
-    try {
       const produto = await this.produtoData.buscarProdutoPorId(idProduto);
-
-      if (produto.length === 0) {
-        throw new Error("Produto inexistente");
+      if (!produto) {
+        throw new ProductNotFoundError();
       }
       return produto;
-    } catch (error: any) {
-      throw new Error(error.message);
-    }
-  };
+    } 
 
   buscarTodosOsProdutos = async () => {
-    try {
       const produtos = await this.produtoData.buscarTodosOsProdutos();
       return produtos;
-    } catch (error: any) {
-      throw new Error(error.message);
-    }
-  };
-
+    } 
+  
   atualizarQuantidadeDeUmProduto = async (
     idProduto: string,
     quantidadeEmEstoque: number
   ) => {
-    try {
-      if (!idProduto || quantidadeEmEstoque === undefined) {
-        throw new Error("Campos faltando");
-      }
-
-      if (isNaN(quantidadeEmEstoque)) {
-        throw new Error("Campos com formato inválido");
-      }
-
-      const produto = await this.produtoData.verificarProdutoExiste(idProduto);
-      if (!produto) {
-        throw new Error("Produto inexistente");
-      }
-
-      const quantidade =
-        await this.produtoData.atualizarQuantidadeDeUmProdutoPorId(
-          quantidadeEmEstoque,
-          idProduto
-        );
-      return quantidade;
-    } catch (error: any) {
-      throw new Error(error.message);
+    if (!idProduto || quantidadeEmEstoque === undefined) {
+      throw new MissingFieldsError();
     }
+
+    if (isNaN(quantidadeEmEstoque)) {
+      throw new InvalidFormatError();
+    }
+
+    const produto = await this.produtoData.verificarProdutoExiste(idProduto);
+    if (!produto) {
+      throw new ProductNotFoundError();
+    }
+
+    const quantidade =
+      await this.produtoData.atualizarQuantidadeDeUmProdutoPorId(
+        quantidadeEmEstoque,
+        idProduto
+      );
+    return quantidade;
   };
 
   buscarProdutoDeUmFornecedorEspecifico = async (
     idProduto: string,
     idFornecedor: string
   ) => {
-    try {
       const produto = await this.produtoData.verificarProdutoExiste(idProduto);
       if (produto != true) {
-        throw new Error("Produto inexistente");
+        throw new ProductNotFoundError();
       }
       const fornecedor = await this.fornecedorData.verificarFornecedorExiste(
         idFornecedor
       );
       if (fornecedor != true) {
-        throw new Error("Fornecedor inexistente");
+        throw new SupplierNotFoundError();
       }
       const produtoDoFornecedor =
         await this.produtoData.verificarProdutoExisteNoFornecedor(
@@ -171,9 +155,7 @@ export class ProdutoBusiness {
           idFornecedor
         );
       if (produtoDoFornecedor != true) {
-        throw new Error(
-          "Nenhuma associação encontrada entre o produto e o fornecedor"
-        );
+        throw new AssociationNotFoundError();
       }
       const produtoProcurado =
         await this.produtoData.buscarProdutoDeUmFornecedorEspecifico(
@@ -181,10 +163,7 @@ export class ProdutoBusiness {
           idFornecedor
         );
       return produtoProcurado;
-    } catch (error: any) {
-      throw new Error(error.message);
-    }
-  };
+    } 
   buscarProdutosPorPrecoNomeCategoria = async (
     precoMin: number,
     precoMax: number,
@@ -193,9 +172,8 @@ export class ProdutoBusiness {
   ) => {
     const nomeString = nome as string;
     const idCategoriaString = idCategoria as string;
-    try {
       if (isNaN(precoMax) || isNaN(precoMin)) {
-        throw new Error("Campos com formato inválido");
+        throw new InvalidFormatError();
       }
       if (idCategoria) {
         const categoria = await this.categoriaData.verificarCategoriaExiste(
@@ -203,12 +181,12 @@ export class ProdutoBusiness {
         );
 
         if (categoria != true) {
-          throw new Error("Categoria inexistente");
+          throw new CategoryNotFoundError();
         }
       }
 
       if (precoMin > precoMax) {
-        throw new Error("Preço mínimo maior que preço máximo");
+        throw new InvalidPriceRangeError();
       }
       const produtos =
         await this.produtoData.buscarProdutosPorPrecoNomeCategoria(
@@ -218,8 +196,5 @@ export class ProdutoBusiness {
           idCategoriaString
         );
       return produtos;
-    } catch (error: any) {
-      throw new Error(error.message);
-    }
-  };
+    } 
 }
