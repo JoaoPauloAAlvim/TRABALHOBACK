@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { FornecedorBusiness } from "../business/FornecedorBusiness";
+import { InvalidFormatError, SupplierNotFoundError } from "../errors/CustomErrors";
 export class FornecedorController {
   fornecedorBusiness = new FornecedorBusiness();
   buscarTodosFornecedores = async (req: Request, res: Response) => {
@@ -20,7 +21,7 @@ export class FornecedorController {
         );
       res.status(200).send(produtos);
     } catch (error: any) {
-      if (error.message.includes("Fornecedor Inexistente")) {
+      if (error instanceof SupplierNotFoundError) {
         res.status(404).send(error.message);
       }else{
         res.send("Erro ao buscar produtos ");
@@ -48,7 +49,7 @@ export class FornecedorController {
         );
       res.status(200).send(fornecedores);
     } catch (error: any) {
-      if (error.message) {
+      if (error instanceof InvalidFormatError) {
         res.status(422).send("Campos com formato inválido");
       } else {
         res.send("Erro ao buscar fornecedores");

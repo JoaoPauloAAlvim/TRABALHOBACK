@@ -1,42 +1,35 @@
 import { FornecedorData } from "../data/FornecedorData";
+import { MissingFieldsError, SupplierNotFoundError } from "../errors/CustomErrors";
 
 export class FornecedorBusiness {
   fornecedorData = new FornecedorData();
 
   buscarTodosOsFornecedores = async () => {
-    try {
       const fornecedores =
         await this.fornecedorData.buscarTodosOsFornecedores();
       return fornecedores;
-    } catch (error: any) {
-      throw new Error(error.message);
-    }
-  };
+    } 
   buscarProdutosDeUmFornecedor = async (idFornecedor: string) => {
-    try {
       const fornecedor = await this.fornecedorData.verificarFornecedorExiste(
         idFornecedor
       );
-      if (fornecedor != true) {
-        throw new Error("Fornecedor Inexistente");
+      if (!fornecedor) {
+        throw new SupplierNotFoundError();
       }
       const produtos = await this.fornecedorData.buscarProdutosDeUmFornecedor(
         idFornecedor
       );
       return produtos;
-    } catch (error: any) {
-      throw new Error(error.message);
-    }
-  };
+    } 
   buscarFornecedoresPorNome = async (
     nomeFornecedor: string,
     offset: number,
     limit: number,
     ordenacao: string
   ) => {
-    try {
+      
       if (isNaN(limit) || isNaN(offset)) {
-        throw new Error("Campos com formato inválido");
+        throw new MissingFieldsError();
       }
       const fornecedores = await this.fornecedorData.buscarFornecedoresPorNome(
         offset,
@@ -46,8 +39,5 @@ export class FornecedorBusiness {
       );
 
       return fornecedores;
-    } catch (error: any) {
-      throw new Error(error.message);
-    }
-  };
+    } 
 }
