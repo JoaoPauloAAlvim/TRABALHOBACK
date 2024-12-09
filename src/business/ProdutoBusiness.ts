@@ -110,31 +110,6 @@ export class ProdutoBusiness {
       return produtos;
     } 
   
-  atualizarQuantidadeDeUmProduto = async (
-    idProduto: string,
-    quantidadeEmEstoque: number
-  ) => {
-    if (!idProduto || quantidadeEmEstoque === undefined) {
-      throw new MissingFieldsError();
-    }
-
-    if (isNaN(quantidadeEmEstoque)) {
-      throw new InvalidFormatError();
-    }
-
-    const produto = await this.produtoData.verificarProdutoExiste(idProduto);
-    if (!produto) {
-      throw new ProductNotFoundError();
-    }
-
-    const quantidade =
-      await this.produtoData.atualizarQuantidadeDeUmProdutoPorId(
-        quantidadeEmEstoque,
-        idProduto
-      );
-    return quantidade;
-  };
-
   buscarProdutoDeUmFornecedorEspecifico = async (
     idProduto: string,
     idFornecedor: string

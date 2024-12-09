@@ -66,18 +66,6 @@ export class ProdutoData {
     }
   };
 
-  atualizarQuantidadeDeUmProdutoPorId = async (
-    quantidadeEmEstoque: number,
-    idProduto: string
-  ) => {
-    try {
-      await connection("produto")
-        .where("idproduto", idProduto)
-        .update({ quantidadeemestoque: quantidadeEmEstoque });
-    } catch (error: any) {
-      throw new Error(error.message || error.sql.message);
-    }
-  };
   deletarProdutoPorId = async (idProduto: string) => {
     try {
       await connection("produto").where("idproduto", idProduto).delete();

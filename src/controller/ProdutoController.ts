@@ -90,38 +90,7 @@ export class ProdutoController {
       res.send("Erro ao buscar produtos");
     }
   };
-  atualizarQuantidadeDeUmProduto = async (req: Request, res: Response) => {
-    const idProduto = req.params.idProduto as string;
-    try {
-      const quantidadeEmEstoque = req.body.quantidadeEmEstoque;
-
-      if (!idProduto || quantidadeEmEstoque === undefined) {
-        throw new MissingFieldsError();
-      }
-
-      const quantidadeNumber = Number(quantidadeEmEstoque);
-      if (isNaN(quantidadeNumber)) {
-        throw new InvalidFormatError();
-      }
-
-      await this.produtoBusiness.atualizarQuantidadeDeUmProduto(
-        idProduto,
-        quantidadeNumber
-      );
-      res.status(200).send("Quantidade do produto atualizada");
-    } catch (error: any) {
-      if (error instanceof MissingFieldsError) {
-        res.status(400).send(error.message);
-      } else if (error instanceof InvalidFormatError) {
-        res.status(422).send(error.message);
-      } else if (error instanceof ProductNotFoundError) {
-        res.status(404).send(error.message);
-      } else {
-        res.status(500).send("Erro ao atualizar quantidade");
-      }
-    }
-  };
-
+  
   buscarProdutoDeUmFornecedorEspecifico = async (
     req: Request,
     res: Response
