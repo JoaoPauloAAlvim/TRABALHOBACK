@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { CategoriaBusiness } from "../business/CategoriaBusiness";
+import { CategoryNotFoundError } from "../errors/CustomErrors";
 export class CategoriaController {
   categoriaBusiness = new CategoriaBusiness();
 
@@ -20,7 +21,7 @@ export class CategoriaController {
         );
       res.status(200).send(produtos);
     } catch (error: any) {
-      if (error.message.includes("Categoria Inexistente")) {
+      if (error instanceof CategoryNotFoundError) {
         res.status(404).send(error.message);
       }else{
         res.send("Erro ao buscar produtos");
